@@ -10,14 +10,14 @@
     <main class="main-content position-relative max-height-vh-100 h-100 border-radius-lg ">
         <!-- Header -->
         @include('layouts.nav')
+
+        <!-- Content -->
+        @yield('content')
+        
+        <!-- footer  -->
+        @include('layouts.footer')
     </main>
-
-    <!-- footer  -->
-    @include('layouts.footer')
-
-    <!-- Content -->
-     @yield('content')
-
+    
     @include('layouts.script')
 </body>
 </html>

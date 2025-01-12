@@ -197,4 +197,4 @@
       </div>
       <a class="btn btn-primary mt-3 w-100" href="https://www.creative-tim.com/product/soft-ui-dashboard-pro?ref=sidebarfree">Upgrade to pro</a>
     </div>
-  </aside>
+</aside>
