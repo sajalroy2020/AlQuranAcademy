@@ -14,7 +14,6 @@ class StudentController extends Controller
     use ResponseTrait;
 
     public function allStudent(Request $request){
-
         if ($request->ajax()) {
             $student = User::query();
             return datatables($student)
@@ -77,7 +76,7 @@ class StudentController extends Controller
 
     public function delete($id){
         try {
-            $student = Student::find($id);
+            $student = User::find($id);
             $student->delete();
             return $this->success([], getMessage(DELETED_SUCCESSFULLY));
         } catch (Exception $e) {

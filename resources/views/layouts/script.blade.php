@@ -8,6 +8,8 @@
 <script src="{{ asset('dashboard/assets/js/plugins/smooth-scrollbar.min.js')}}"></script>
 <script src="{{ asset('dashboard/assets/js/plugins/chartjs.min.js')}}"></script>
 <script src="{{ asset('common/js/common_function.js')}}"></script>
+<script src="{{ asset('common/js/plugins.js')}}"></script>
+
 @stack('script')
 
 <script>

@@ -3,6 +3,7 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class UserRequest extends FormRequest
 {
@@ -25,8 +26,8 @@ class UserRequest extends FormRequest
     {
         return [
             'name' => ['required', 'max:120'],
-            "email" => ['bail','required','email', Rule::unique('users','email')->ignore($id, 'id')->whereNull('deleted_at')],
-            "phone" => ['bail','required','numeric', Rule::unique('users','phone')->ignore(auth()->id(), 'id')->whereNull('deleted_at')],
+            "email" => ['bail','required','email', Rule::unique('users','email')->whereNull('deleted_at')],
+            "phone" => ['bail','required','numeric', Rule::unique('users','phone')->whereNull('deleted_at')],
             'gender' => ['required'],
             'course_id' => ['required'],
             'country_id' => ['required'],

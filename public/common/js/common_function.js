@@ -102,7 +102,7 @@
         return moment(date).format(format);
     }
 
-    window.deleteCommonMethod = function (url, id, redirect_url=null) {
+    window.deleteCommonMethod = function (url, id, redirect_url=null) {        
         Swal.fire({
             title: 'Sure! You want to delete?',
             text: "You won't be able to revert this!",
