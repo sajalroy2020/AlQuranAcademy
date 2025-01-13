@@ -4,7 +4,6 @@
 {{$pageTitle}}
 @endpush
 
-
 @section('content')
 <!-- Page content area start -->
 
@@ -34,7 +33,6 @@
     </div>
 </div>
 <!-- Page content area end -->
-
 
 <!-- Add Modal section start -->
 <div class="modal fade zModalTwo" id="add-modal" aria-hidden="true" tabindex="-1">
