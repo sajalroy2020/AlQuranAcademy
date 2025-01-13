@@ -33,6 +33,7 @@
 
     <!-- CSS files -->
     <link rel="stylesheet" href="{{ asset('dashboard/assets/css/dataTables.css') }}" />
+    <link rel="stylesheet" href="{{ asset('dashboard/assets/css/custom.css') }}" />
     <link rel="stylesheet" href="{{ asset('dashboard/assets/css/dataTables.responsive.min.css') }}" />
 
 </head>

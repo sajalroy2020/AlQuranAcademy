@@ -2,14 +2,26 @@
 
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\StudentController;
+use App\Http\Controllers\DashboardController;
 
 Route::get('/', function () {
-    return view('admin.dashboard');
+    return view('welcome');
 });
 
-Route::get('/all-student', [StudentController::class, 'allStudent'])->name('all-student');
+Auth::routes();
 
-Route::group(['prefix' => 'student', 'as' => 'student.'], function () {
-    Route::post('store', [StudentController::class, 'studentStore'])->name('store');
+Route::middleware('auth')->group(function () {
+    Route::get('home', [DashboardController::class, 'index'])->name('dashboard');
+
+    // student route
+    Route::group(['prefix' => 'student', 'as' => 'student.'], function () {
+        Route::get('all', [StudentController::class, 'allStudent'])->name('all');
+        Route::post('store', [StudentController::class, 'studentStore'])->name('store');
+        Route::get('edit/{id}', [StudentController::class, 'edit'])->name('edit');
+        Route::post('delete/{id}', [StudentController::class, 'delete'])->name('delete');
+
+    });
+
+
 });
 
