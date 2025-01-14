@@ -11,29 +11,26 @@
 <script src="{{ asset('common/js/plugins.js')}}"></script>
 
 @stack('script')
-
 <script>
-	@if(Session::has('success'))
-	    toastr.success("{{ session('success') }}");
-	@endif
-	@if(Session::has('error'))
-	    toastr.error("{{ session('error') }}");
-	@endif
-	@if(Session::has('info'))
-	    toastr.info("{{ session('info') }}");
-	@endif
-	@if(Session::has('warning'))
-	    toastr.warning("{{ session('warning') }}");
-	@endif
+    @if (Session::has('success'))
+    toastr.success("{{ session('success') }}");
+    @endif
+    @if (Session::has('error'))
+    toastr.error("{{ session('error') }}");
+    @endif
+    @if (Session::has('info'))
+    toastr.info("{{ session('info') }}");
+    @endif
+    @if (Session::has('warning'))
+    toastr.warning("{{ session('warning') }}");
+    @endif
 
-	@if (@$errors->any())
-        @foreach ($errors->all() as $error)
-            toastr.error("{{ $error }}");
-        @endforeach
-	@endif
+    @if (@$errors->any())
+    @foreach ($errors->all() as $error)
+    toastr.error("{{ $error }}");
+    @endforeach
+    @endif
 </script>
-
-
 <script>
     var ctx = document.getElementById("chart-bars").getContext("2d");
 

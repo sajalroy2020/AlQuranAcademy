@@ -4,14 +4,15 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\UserRequest;
 use App\Models\User;
-use App\Traits\ResponseTrait;
+use App\Traits\JsonResponseTrait;
 use Illuminate\Http\Request;
 use Exception;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class StudentController extends Controller
 {
-    use ResponseTrait;
+    use JsonResponseTrait;
 
     public function allStudent(Request $request){
         if ($request->ajax()) {
@@ -60,17 +61,19 @@ class StudentController extends Controller
             $student->email = $request->email;
             $student->phone = $request->phone;
             $student->gender = $request->gender;
-            $student->course_id = $request->course_id;
+            // $student->course_id = $request->course_id;
             $student->country_id = $request->country_id;
             $student->state_id = $request->state_id;
             $student->dob = $request->dob;
             $student->password = $request->password;
             $student->save();
             DB::commit();
-            return $this->success([], getMessage(CREATED_SUCCESSFULLY));
+
+            return $this->successResponse([], __(MSG_CREATED_SUCCESSFULLY));
         } catch (Exception $e) {
             DB::rollBack();
-            return $this->error([], getMessage(SOMETHING_WENT_WRONG));
+            Log::info($e->getMessage());
+            return $this->errorResponse([], __(MSG_SOMETHING_WENT_WRONG));
         }
     }
 
@@ -78,9 +81,9 @@ class StudentController extends Controller
         try {
             $student = User::find($id);
             $student->delete();
-            return $this->success([], getMessage(DELETED_SUCCESSFULLY));
+            return $this->successResponse([], __(MSG_DELETED_SUCCESSFULLY));
         } catch (Exception $e) {
-            return $this->error([], getMessage(SOMETHING_WENT_WRONG));
+            return $this->errorResponse([], __(MSG_SOMETHING_WENT_WRONG));
         }
     }
 

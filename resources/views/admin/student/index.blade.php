@@ -37,7 +37,7 @@
 <div class="modal" id="add-modal" aria-hidden="true" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content zModalTwo-content">
-            <form class="ajax reset" action="{{route('student.store')}}" method="post" data-handler="commonResponse">
+            <form class="ajax-request reset" action="{{route('student.store')}}" method="POST" data-handler="commonResponse">
                 @csrf
                 <div class="modal-body zModalTwo-body">
                     <div class="d-flex justify-content-between align-items-center pb-30">
