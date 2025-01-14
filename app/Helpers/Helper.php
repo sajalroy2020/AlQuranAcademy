@@ -1,91 +1,47 @@
 <?php
 
 use App\Models\Currency;
-use App\Models\EmailTemplate;
-use App\Models\FileManager;
-use App\Models\Language;
-use App\Models\Meta;
+use App\Models\Exam;
+use App\Models\FileHandler;
+use App\Models\MultiLanguage;
 use App\Models\Notification;
+use App\Models\Payment;
 use App\Models\Setting;
-use App\Models\UserPackage;
+use App\Models\User;
+use App\Models\UserActivity;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Config;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Storage;
-use App\Mail\EmailNotify;
-use App\Models\Chat;
-use Illuminate\Support\Facades\Artisan;
-use Illuminate\Support\Facades\Mail;
+use Jenssegers\Agent\Agent;
 
-if (!function_exists("getOption")) {
-    function getOption($option_key, $default = NULL)
+if (!function_exists("getSetting")) {
+    function getSetting($option, $default = NULL)
     {
         $system_settings = config('settings');
 
-        if ($option_key && isset($system_settings[$option_key])) {
-            return $system_settings[$option_key];
+        if ($option && isset($system_settings[$option])) {
+            return $system_settings[$option];
         } else {
             return $default;
         }
     }
 }
 
-
-function getSettingImage($option_key)
+function replaceKeywordForTemplate($content, $customizedFieldsArray)
 {
-
-    if ($option_key && $option_key != null) {
-
-
-        $setting = Setting::where('tenant_id', getTenantId())->where('option_key', $option_key)->first();
-        if (isset($setting->option_value) && isset($setting->option_value) != null) {
-
-            $file = FileManager::where('tenant_id', getTenantId())->select('path', 'storage_type')->find($setting->option_value);
-
-
-            if (!is_null($file)) {
-                if (Storage::disk($file->storage_type)->exists($file->path)) {
-
-                    if ($file->storage_type == 'public') {
-                        return asset('storage/' . $file->path);
-                    }
-
-                    return Storage::disk($file->storage_type)->url($file->path);
-                }
-            }
+    $pattern = '/{{(.*?)}}/';
+    $content = preg_replace_callback($pattern, function ($matches) use ($customizedFieldsArray) {
+        $field = trim($matches[1]);
+        if (array_key_exists($field, $customizedFieldsArray)) {
+            return $customizedFieldsArray[$field];
         }
-    }
-    return asset('assets/images/no-image.jpg');
+        return $matches[0];
+    }, $content);
+    return $content;
 }
 
-function getSettingImageCentral($option_key)
-{
-
-    if ($option_key && $option_key != null) {
-
-
-        $setting = Setting::where('tenant_id', NULL)->where('option_key', $option_key)->first();
-        if (isset($setting->option_value) && isset($setting->option_value) != null) {
-
-            $file = FileManager::where('tenant_id', NULL)->select('path', 'storage_type')->find($setting->option_value);
-
-
-            if (!is_null($file)) {
-                if (Storage::disk($file->storage_type)->exists($file->path)) {
-
-                    if ($file->storage_type == 'public') {
-                        return asset('storage/' . $file->path);
-                    }
-
-                    return Storage::disk($file->storage_type)->url($file->path);
-                }
-            }
-        }
-    }
-    return asset('assets/images/no-image.jpg');
-}
 
 function settingImageStoreUpdate($option_value, $requestFile)
 {
@@ -94,7 +50,7 @@ function settingImageStoreUpdate($option_value, $requestFile)
 
         /*File Manager Call upload*/
         if ($option_value && $option_value != null) {
-            $new_file = FileManager::where('tenant_id', getTenantId())->where('id', $option_value)->first();
+            $new_file = FileManager::where('id', $option_value)->first();
 
             if ($new_file) {
                 $new_file->removeFile();
@@ -120,8 +76,36 @@ function settingImageStoreUpdate($option_value, $requestFile)
 if (!function_exists("getDefaultImage")) {
     function getDefaultImage()
     {
-        // return asset('assets/images/no-image.jpg');
-        return asset('assets/images/icon/upload-img-1.svg');
+        return asset('assets/images/no-image.jpg');
+    }
+}
+
+if (!function_exists("activeIfMatch")) {
+    function activeIfMatch($path)
+    {
+        if (auth::user()->is_admin()) {
+            return Request::is($path . '*') ? 'mm-active' : '';
+        } else {
+            return Request::is($path . '*') ? 'active' : '';
+        }
+    }
+}
+
+if (!function_exists("activeIfFullMatch")) {
+    function activeIfFullMatch($path)
+    {
+        if (auth::user()->is_admin()) {
+            return Request::is($path) ? 'mm-active' : '';
+        } else {
+            return Request::is($path) ? 'active' : '';
+        }
+    }
+}
+
+if (!function_exists("openIfFullMatch")) {
+    function openIfFullMatch($path)
+    {
+        return Request::is($path) ? 'has-open' : '';
     }
 }
 
@@ -136,7 +120,7 @@ if (!function_exists("toastMessage")) {
 if (!function_exists("getDefaultLanguage")) {
     function getDefaultLanguage()
     {
-        $language = Language::where('default', STATUS_ACTIVE)->first();
+        $language = MultiLanguage::where('default', STATUS_ACTIVE)->first();
         if ($language) {
             $iso_code = $language->iso_code;
             return $iso_code;
@@ -147,9 +131,9 @@ if (!function_exists("getDefaultLanguage")) {
 }
 
 if (!function_exists("getCurrencySymbol")) {
-    function getCurrencySymbol($tenantId = NULL)
+    function getCurrencySymbol()
     {
-        $currency = Currency::where('tenant_id', getTenantId() ?? $tenantId)->where('current_currency', STATUS_ACTIVE)->first();
+        $currency = Currency::where('default_currency', STATUS_ACTIVE)->first();
         if ($currency) {
             $symbol = $currency->symbol;
             return $symbol;
@@ -160,22 +144,21 @@ if (!function_exists("getCurrencySymbol")) {
 }
 
 if (!function_exists("getIsoCode")) {
-    function getIsoCode($tenantId = NULL)
+    function getIsoCode()
     {
-        $currency = Currency::where('tenant_id', getTenantId() ?? $tenantId)->where('current_currency', STATUS_ACTIVE)->first();
+        $currency = Currency::where('current_currency', STATUS_ACTIVE)->first();
         if ($currency) {
             $currency_code = $currency->currency_code;
             return $currency_code;
         }
-
         return '';
     }
 }
 
 if (!function_exists("getCurrencyPlacement")) {
-    function getCurrencyPlacement($tenantId = NULL)
+    function getCurrencyPlacement()
     {
-        $currency = Currency::where('tenant_id', getTenantId() ?? $tenantId)->where('current_currency', STATUS_ACTIVE)->first();
+        $currency = Currency::where('current_currency', STATUS_ACTIVE)->first();
         $placement = 'before';
         if ($currency) {
             $placement = $currency->currency_placement;
@@ -186,8 +169,8 @@ if (!function_exists("getCurrencyPlacement")) {
     }
 }
 
-if (!function_exists("showPrice")) {
-    function showPrice($price)
+if (!function_exists("showCurrency")) {
+    function showCurrency($price)
     {
         $price = getNumberFormat($price);
         if (config('app.currencyPlacement') == 'after') {
@@ -223,7 +206,7 @@ function intToDecimal($amount)
 if (!function_exists("appLanguages")) {
     function appLanguages()
     {
-        return Language::where('status', 1)->get();
+        return MultiLanguage::where('status', 1)->get();
     }
 }
 
@@ -231,10 +214,10 @@ if (!function_exists("selectedLanguage")) {
     function selectedLanguage()
     {
 
-        $language = Language::where('iso_code', session()->get('local'))->first();
+        $language = MultiLanguage::where('iso_code', session()->get('local'))->first();
 
         if (!$language) {
-            $language = Language::first();
+            $language = MultiLanguage::find(1);
             if ($language) {
                 $ln = $language->iso_code;
                 session(['local' => $ln]);
@@ -247,41 +230,23 @@ if (!function_exists("selectedLanguage")) {
 }
 
 if (!function_exists("getVideoFile")) {
-    function getFile($path, $storageType)
+    function getFile($file)
     {
-        if (!is_null($path)) {
-            if (Storage::disk($storageType)->exists($path)) {
-
-                if ($storageType == 'public') {
-                    return asset('storage/' . $path);
-                }
-
-                if ($storageType == 'wasabi') {
-                    return Storage::disk('wasabi')->url($path);
-                }
-
-
-                return Storage::disk($storageType)->url($path);
-            }
+        if ($file == '' || $file == null) {
+            return null;
         }
 
-        return asset('assets/images/no-image.jpg');
-    }
-}
+        try {
+            if (env('STORAGE_DRIVER') == "s3") {
+                if (Storage::disk('s3')->exists($file)) {
+                    $s3 = Storage::disk('s3');
+                    return $s3->url($file);
+                }
+            }
+        } catch (Exception $e) {
+        }
 
-if (!function_exists("notificationForUser")) {
-    function notificationForUser()
-    {
-        $instructor_notifications = \App\Models\Notification::where('user_id', auth()->user()->id)->where('user_type', 2)->where('is_seen', 'no')->orderBy('created_at', 'DESC')->get();
-        $student_notifications = \App\Models\Notification::where('user_id', auth()->user()->id)->where('user_type', 3)->where('is_seen', 'no')->orderBy('created_at', 'DESC')->get();
-        return array('instructor_notifications' => $instructor_notifications, 'student_notifications' => $student_notifications);
-    }
-}
-
-if (!function_exists("adminNotifications")) {
-    function adminNotifications()
-    {
-        return \App\Models\Notification::where('tenant_id', getTenantId())->where('user_type', 1)->where('is_seen', 'no')->orderBy('created_at', 'DESC')->paginate(5);
+        return asset($file);
     }
 }
 
@@ -301,7 +266,7 @@ if (!function_exists('getSlug')) {
 if (!function_exists('getCustomerCurrentBuildVersion')) {
     function getCustomerCurrentBuildVersion()
     {
-        $buildVersion = getOption('build_version');
+        $buildVersion = getSetting('app_version');
 
         if (is_null($buildVersion)) {
             return 1;
@@ -311,69 +276,10 @@ if (!function_exists('getCustomerCurrentBuildVersion')) {
     }
 }
 
-if (!function_exists('getCustomerAddonBuildVersion')) {
-    function getCustomerAddonBuildVersion($code)
-    {
-        $buildVersion = getOption($code . '_build_version', 0);
-        if (is_null($buildVersion)) {
-            return 0;
-        }
-        return (int)$buildVersion;
-    }
-}
-
-if (!function_exists('isAddonInstalled')) {
-    function isAddonInstalled($code)
-    {
-        // return false;
-        $buildVersion = getOption($code . '_build_version', 0);
-        $codeBuildVersion = getAddonCodeBuildVersion($code);
-        if ($buildVersion == 0 || $codeBuildVersion == 0) {
-            return false;
-        }
-        return true;
-    }
-}
-
-if (!function_exists('setCustomerAddonCurrentVersion')) {
-    function setCustomerAddonCurrentVersion($code)
-    {
-        $option = Setting::where('tenant_id', getTenantId())->firstOrCreate(['option_key' => $code . '_current_version']);
-        $option->option_value = getAddonCodeCurrentVersion($code);
-        $option->save();
-    }
-}
-
-if (!function_exists('setCustomerAddonBuildVersion')) {
-    function setCustomerAddonBuildVersion($code, $version)
-    {
-        $option = Setting::where('tenant_id', getTenantId())->firstOrCreate(['option_key' => $code . '_build_version']);
-        $option->option_value = $version;
-        $option->save();
-    }
-}
-
-
-if (!function_exists('getAddonCodeCurrentVersion')) {
-    function getAddonCodeCurrentVersion($appCode)
-    {
-        Artisan::call("optimize:clear");
-        return config('Addon.' . $appCode . '.current_version', 0);
-    }
-}
-
-if (!function_exists('getAddonCodeBuildVersion')) {
-    function getAddonCodeBuildVersion($appCode)
-    {
-        Artisan::call("optimize:clear");
-        return config('Addon.' . $appCode . '.build_version', 0);
-    }
-}
-
 if (!function_exists('setCustomerBuildVersion')) {
     function setCustomerBuildVersion($version)
     {
-        $option = Setting::where('tenant_id', getTenantId())->firstOrCreate(['option_key' => 'build_version']);
+        $option = Setting::firstOrCreate(['option_key' => 'app_version']);
         $option->option_value = $version;
         $option->save();
     }
@@ -382,12 +288,11 @@ if (!function_exists('setCustomerBuildVersion')) {
 if (!function_exists('setCustomerCurrentVersion')) {
     function setCustomerCurrentVersion()
     {
-        $option = Setting::where('tenant_id', getTenantId())->firstOrCreate(['option_key' => 'current_version']);
+        $option = Setting::firstOrCreate(['option_key' => 'current_version']);
         $option->option_value = config('app.current_version');
         $option->save();
     }
 }
-
 
 if (!function_exists('getDomainName')) {
     function getDomainName($url)
@@ -402,7 +307,6 @@ if (!function_exists('getDomainName')) {
         return trim($host);
     }
 }
-
 
 if (!function_exists('updateEnv')) {
     function updateEnv($values)
@@ -483,41 +387,45 @@ if (!function_exists('getErrorMessage')) {
         if (env('APP_DEBUG')) {
             return $e->getMessage() . $e->getLine();
         } else {
-            return SOMETHING_WENT_WRONG;
+            return MSG_SOMETHING_WENT_WRONG;
         }
     }
 }
 
-if (!function_exists('getFileUrl')) {
-    function getFileUrl($id = null)
+if (!function_exists('getFileLink')) {
+    function getFileLink($id = null, $demo_image_type = null, $demo_image_dimension = null)
     {
-
-        $file = FileManager::select('path', 'storage_type')->find($id);
-
+        $file = FileHandler::select('path', 'storage_type')->find($id);
         if (!is_null($file)) {
             if (Storage::disk($file->storage_type)->exists($file->path)) {
-
-                if ($file->storage_type == 'public') {
+                if ($file->storage_type == 'public' || $file->storage_type == 'local') {
                     return asset('storage/' . $file->path);
                 }
-
                 if ($file->storage_type == 'wasabi') {
                     return Storage::disk('wasabi')->url($file->path);
                 }
-
-
                 return Storage::disk($file->storage_type)->url($file->path);
             }
         }
 
-        return asset('assets/images/no-image.jpg');
+        $demoImgSize = '';
+        if ($demo_image_dimension != null) {
+            $demoImgSize = '-d-' . $demo_image_dimension;
+        }
+
+        $demoImg = asset('assets/common/images/demo-image' . $demoImgSize . '.jpg');
+        if ($demo_image_type == 'user') {
+            $demoImg = asset('assets/common/images/demo-user-image' . $demoImgSize . '.jpg');
+        }
+        return $demoImg;
     }
 }
+
 
 if (!function_exists('languageLocale')) {
     function languageLocale($locale)
     {
-        $data = Language::where('code', $locale)->first();
+        $data = MultiLanguage::where('code', $locale)->first();
         if ($data) {
             return $data->code;
         }
@@ -538,24 +446,157 @@ if (!function_exists('getUseCase')) {
 
 function currentCurrency($attribute = '')
 {
-    $currentCurrency = Currency::where('tenant_id', getTenantId())->where('current_currency', 1)->first();
+    $currentCurrency = Currency::where('current_currency', 1)->first();
     if (isset($currentCurrency->{$attribute})) {
         return $currentCurrency->{$attribute};
     }
     return '';
 }
 
+function getPairInfo($base_coin_id, $trade_coin_id, $property)
+{
+    $base_coin = Coin::where('id', $base_coin_id)->first();
+    $trade_coin = Coin::where('id', $trade_coin_id)->first();
+
+
+    if ($property == 'pare_name') {
+        return $trade_coin->full_name . '/' . $base_coin->full_name;
+    }
+    if ($property == 'base_coin_name') {
+        return $base_coin->full_name;
+    }
+
+    if ($property == 'trade_coin_name') {
+        return $trade_coin->full_name;
+    }
+
+    if ($property == 'base_coin_price') {
+        return convertCurrency(1, $base_coin->coin_type, $trade_coin->coin_type)['price'];
+    }
+
+    if ($property == 'trade_coin_price') {
+    }
+}
+
 function currentCurrencyType()
 {
-    $currentCurrency = Currency::where('tenant_id', getTenantId())->where('current_currency', 1)->first();
-    return $currentCurrency?->currency_code;
+    $currentCurrency = Currency::where('current_currency', 1)->first();
+    return $currentCurrency->currency_code;
 }
 
 function currentCurrencyIcon()
 {
-    $currentCurrency = Currency::where('tenant_id', getTenantId())->where('current_currency', 1)->first();
+    $currentCurrency = Currency::where('current_currency', 1)->first();
     return $currentCurrency->symbol;
 }
+
+function totalBlance()
+{
+
+    $userWallet = UserWallet::leftJoin('coins', 'user_wallets.coin_id', '=', 'coins.id')
+        ->where('user_wallets.user_id', auth()->id())
+        ->select([
+            'user_wallets.id as wallet_id',
+            'user_wallets.user_id',
+            'user_wallets.balance',
+            'user_wallets.balance_referral',
+            'user_wallets.address',
+            'coins.*'
+        ])
+        ->get();
+
+    $order = 0;
+    $blance = 0;
+
+    foreach ($userWallet as $wallet) {
+        $blance += convertCurrency($wallet->balance, currentCurrencyType(), $wallet->coin_type)["total"];
+    }
+
+
+    $blance = $blance + $order;
+
+    return $blance;
+}
+
+function userWalletById($id = '')
+{
+
+    $userWallet = UserWallet::leftJoin('coins', 'user_wallets.coin_id', '=', 'coins.id')
+        ->where('user_wallets.id', $id)
+        ->select([
+            'user_wallets.id as wallet_id',
+            'user_wallets.user_id',
+            'user_wallets.balance',
+            'user_wallets.balance_referral',
+            'user_wallets.address',
+            'coins.*'
+        ])
+        ->get();
+
+    return $userWallet;
+}
+
+
+// Convert currency
+function convertCurrency($amount, $to = 'USD', $from = 'USD')
+{
+    //1-BTC-GBP
+    try {
+        $jsondata = "";
+
+        $coinPriceInCurrency = Setting::where('option_key', 'COIN_PRICE_IN_CURRENCY_FOR' . $from)->first();
+
+
+        if ($coinPriceInCurrency != null) {
+
+            if ($coinPriceInCurrency->option_value == null) {
+                $url = "https://min-api.cryptocompare.com/data/price?fsym=$from&tsyms=$to";
+                $json = file_get_contents($url); //,FALSE,$ctx);
+                $jsondata = json_decode($json, TRUE);
+
+                $coinPriceInCurrency->option_value = $jsondata[$to];
+                $coinPriceInCurrency->save();
+            }
+
+            $dateTime = Carbon::now()->addMinute(5);
+            $currentTime = $dateTime->format('Y-m-d H:i:s');
+
+
+            if (($coinPriceInCurrency->option_value != null) && (date('Y-m-d H:i:s', strtotime($coinPriceInCurrency->updated_at)) < $currentTime)) {
+                $url = "https://min-api.cryptocompare.com/data/price?fsym=$from&tsyms=$to";
+                $json = file_get_contents($url); //,FALSE,$ctx);
+                $jsondata = json_decode($json, TRUE);
+
+                $coinPriceInCurrency->option_value = $jsondata[$to];
+                $coinPriceInCurrency->save();
+            }
+        } else {
+
+            $url = "https://min-api.cryptocompare.com/data/price?fsym=$from&tsyms=$to";
+            $json = file_get_contents($url); //,FALSE,$ctx);
+            $jsondata = json_decode($json, TRUE);
+
+            if ($jsondata != null) {
+                $newObj = new Setting();
+                $newObj->option_key = 'COIN_PRICE_IN_CURRENCY_FOR' . $from;
+                $newObj->option_value = $jsondata[$to];
+                $newObj->save();
+            }
+        }
+
+
+        return [
+            'total' => $amount * getSetting('COIN_PRICE_IN_CURRENCY_FOR' . $from),
+            'price' => getSetting('COIN_PRICE_IN_CURRENCY_FOR' . $from)
+        ];
+    } catch (\Exception $e) {
+        return [
+            'total' => 0.00000000,
+            'price' => 0.00000000
+        ];
+    }
+}
+
 
 function convertCurrencySwap($amount, $to = 'USD', $from = 'USD')
 {
@@ -568,7 +609,7 @@ function convertCurrencySwap($amount, $to = 'USD', $from = 'USD')
             if ($coinPriceInCurrency->option_value == null) {
                 $url = "https://min-api.cryptocompare.com/data/price?fsym=$from&tsyms=$to";
                 $json = file_get_contents($url); //,FALSE,$ctx);
-                $jsondata =  json_decode($json, TRUE);
+                $jsondata = json_decode($json, TRUE);
 
                 $coinPriceInCurrency->option_value = $jsondata[$to];
                 $coinPriceInCurrency->save();
@@ -580,7 +621,7 @@ function convertCurrencySwap($amount, $to = 'USD', $from = 'USD')
             if (($coinPriceInCurrency->option_value != null) && (date('Y-m-d H:i:s', strtotime($coinPriceInCurrency->updated_at)) < $currentTime)) {
                 $url = "https://min-api.cryptocompare.com/data/price?fsym=$from&tsyms=$to";
                 $json = file_get_contents($url); //,FALSE,$ctx);
-                $jsondata =  json_decode($json, TRUE);
+                $jsondata = json_decode($json, TRUE);
 
                 $coinPriceInCurrency->option_value = $jsondata[$to];
                 $coinPriceInCurrency->save();
@@ -589,7 +630,7 @@ function convertCurrencySwap($amount, $to = 'USD', $from = 'USD')
 
             $url = "https://min-api.cryptocompare.com/data/price?fsym=$from&tsyms=$to";
             $json = file_get_contents($url); //,FALSE,$ctx);
-            $jsondata =  json_decode($json, TRUE);
+            $jsondata = json_decode($json, TRUE);
 
             if ($jsondata != null) {
                 $newObj = new Setting();
@@ -600,8 +641,8 @@ function convertCurrencySwap($amount, $to = 'USD', $from = 'USD')
         }
 
         return [
-            'total' => $amount * getOption('COIN_PRICE_IN_CURRENCY_FOR' . $from),
-            'price' => getOption('COIN_PRICE_IN_CURRENCY_FOR' . $from)
+            'total' => $amount * getSetting('COIN_PRICE_IN_CURRENCY_FOR' . $from),
+            'price' => getSetting('COIN_PRICE_IN_CURRENCY_FOR' . $from)
         ];
     } catch (\Exception $e) {
         return [
@@ -664,25 +705,27 @@ function getError($e)
     return '';
 }
 
-function notification($title = null, $body = null, $user_id = null, $link = null)
+function setNotification($title, $details, $receiver_id = null, $external_link = null)
 {
     try {
         $obj = new Notification();
         $obj->title = $title;
-        $obj->body = $body;
-        $obj->user_id = $user_id;
-        $obj->link = $link;
+        $obj->details = $details;
+        $obj->receiver_id = $receiver_id;
+        $obj->external_link = $external_link;
         $obj->save();
+        Log::info("Sent notification successfully");
         return "notification sent!";
     } catch (\Exception $e) {
-        return "something error!";
+        Log::info("Sent notification Error:" . $e->getMessage());
+        return "notification error!";
     }
 }
 
 if (!function_exists('get_default_language')) {
     function get_default_language()
     {
-        $language = Language::where('default', STATUS_ACTIVE)->first();
+        $language = MultiLanguage::where('default', STATUS_ACTIVE)->first();
         if ($language) {
             $iso_code = $language->iso_code;
             return $iso_code;
@@ -695,7 +738,7 @@ if (!function_exists('get_default_language')) {
 if (!function_exists('get_currency_symbol')) {
     function get_currency_symbol()
     {
-        $currency = Currency::where('tenant_id', getTenantId())->where('current_currency', STATUS_ACTIVE)->first();
+        $currency = Currency::where('current_currency', STATUS_ACTIVE)->first();
         if ($currency) {
             $symbol = $currency->symbol;
             return $symbol;
@@ -708,7 +751,7 @@ if (!function_exists('get_currency_symbol')) {
 if (!function_exists('get_currency_code')) {
     function get_currency_code()
     {
-        $currency = Currency::where('tenant_id', getTenantId())->where('current_currency', STATUS_ACTIVE)->first();
+        $currency = Currency::where('current_currency', STATUS_ACTIVE)->first();
         if ($currency) {
             $currency_code = $currency->currency_code;
             return $currency_code;
@@ -721,7 +764,7 @@ if (!function_exists('get_currency_code')) {
 if (!function_exists('get_currency_placement')) {
     function get_currency_placement()
     {
-        $currency = Currency::where('tenant_id', getTenantId())->where('current_currency', STATUS_ACTIVE)->first();
+        $currency = Currency::where('current_currency', STATUS_ACTIVE)->first();
         $placement = 'before';
         if ($currency) {
             $placement = $currency->currency_placement;
@@ -730,6 +773,20 @@ if (!function_exists('get_currency_placement')) {
 
         return $placement;
     }
+}
+
+
+function getapisetting($coin_type, $property)
+{
+    $coin = Coin::join('api_settings', 'coins.id', '=', 'api_settings.coin_id')
+        ->where('coins.coin_type', $coin_type)
+        ->first([
+            'coins.coin_type',
+            'api_settings.*'
+        ]);
+
+    //    $coin = Coin::where('coin_type',$coin_type)->first();
+    return $coin->{$property};
 }
 
 if (!function_exists('customNumberFormat')) {
@@ -751,368 +808,316 @@ if (!function_exists('customNumberFormat')) {
     }
 }
 
- function humanFileSize($size, $unit = '')
-{
-    if ((!$unit && $size >= 1 << 30) || $unit == 'GB') {
-        return number_format($size / (1 << 30), 2) . 'GB';
-    }
 
-    if ((!$unit && $size >= 1 << 20) || $unit == 'MB') {
-        return number_format($size / (1 << 20), 2) . 'MB';
-    }
-
-    if ((!$unit && $size >= 1 << 10) || $unit == 'KB') {
-        return number_format($size / (1 << 10), 2) . 'KB';
-    }
-
-    return number_format($size) . ' bytes';
-}
-
-if (!function_exists('getMeta')) {
-    function getMeta($slug)
+if (!function_exists('calculateFees')) {
+    function calculateFees($amount, $feeMethod, $feePercentage, $feeFixed)
     {
-        $metaData = [
-            'meta_title' => null,
-            'meta_description' => null,
-            'meta_keyword' => null,
-            'og_image' => null,
-        ];
-
-        $meta = Meta::where('slug', $slug)->select([
-            'meta_title',
-            'meta_description',
-            'meta_keyword',
-            'og_image',
-        ])->first();
-
-        if(!is_null($meta)){
-                $metaData = $meta->toArray();
-        }else{
-            $meta = Meta::where('slug', 'default')->select([
-                'meta_title',
-                'meta_description',
-                'meta_keyword',
-                'og_image',
-            ])->first();
-
-            if(!is_null($meta)){
-                $metaData = $meta->toArray();
+        try {
+            if ($feeMethod == 1) {
+                return customNumberFormat($feeFixed);
+            } elseif ($feeMethod == 2) {
+                return customNumberFormat(bcdiv(bcmul($feePercentage, $amount), 100));
+            } elseif ($feeMethod == 3) {
+                return customNumberFormat(bcadd($feeFixed, bcdiv(bcmul($feePercentage, $amount), 100)));
+            } else {
+                return 0;
             }
+        } catch (\Exception $e) {
+            return 0;
         }
-
-        $metaData['meta_title'] = $metaData['meta_title'] != NULL ? $metaData['meta_title'] : getOption('app_name');
-        $metaData['meta_description'] = $metaData['meta_description'] != NULL ? $metaData['meta_description'] : getOption('app_name');
-        $metaData['meta_keyword'] = $metaData['meta_keyword'] != NULL ? $metaData['meta_keyword'] : getOption('app_name');
-        $metaData['og_image'] = $metaData['og_image'] != NULL ? getFileUrl($metaData['og_image']) : getFileUrl(getOption('app_logo'));
-
-        return $metaData;
     }
 }
 
-function genericEmailNotify($singleData=NULL,$userData=NULL,$customData=NULL,$template=NULL,$link=NULL)
-{
-    if(getOption('app_mail_status')==STATUS_ACTIVE)
+
+if (!function_exists('excluded_user')) {
+    function excluded_user($param = null)
     {
-        if($singleData!=NULL && $singleData!= ""){
-            Mail::to($singleData->to)->send(new EmailNotify($singleData,$userData, $customData, $template,$link));
+        if ($param == null) {
+            return ExcludedUser::all('user_id');
         }
-        elseif($userData !=NULL && $userData !=""){
-            Mail::to($userData->email)->send(new EmailNotify($singleData,$userData, $customData, $template,$link));
-        }
+        $userId = ExcludedUser::pluck('user_id')->toArray();
+
+        return $userId;
     }
-    return '';
 }
 
-function getEmailTemplate($category, $property, $link = NULL, $customData = NULL, $userData = NULL)
+if (!function_exists('trade_max_level')) {
+    function trade_max_level()
+    {
+        return 5;
+    }
+}
+
+if (!function_exists('getPerCoinRate')) {
+    function getPerCoinRate($coin_type)
+    {
+        return convertCurrencySwap(1, $coin_type, currentCurrency('currency_code'))["price"];
+    }
+}
+
+
+if (!function_exists('allsetting')) {
+    function allsetting($keys = null)
+    {
+
+        if ($keys && is_array($keys)) {
+            $settings = Setting::whereIn('option_key', $keys)->pluck('option_value', 'option_key')->toArray();
+            $settingsNotFoundInDB = array_fill_keys(array_diff($keys, array_keys($settings)), false);
+            if (!empty($settingsNotFoundInDB)) {
+                $settings = array_merge($settings, $settingsNotFoundInDB);
+            }
+            return $settings;
+        } elseif ($keys && is_string($keys)) {
+            $setting = Setting::where('option_key', $keys)->first();
+            return empty($setting) ? false : $setting->value;
+        }
+        return Setting::pluck('option_value', 'option_key')->toArray();
+    }
+}
+
+
+if (!function_exists('getRandomDecimal')) {
+    function getRandomDecimal($min, $max, $probabilityRatio)
+    {
+        // Calculate the adjusted maximum value based on the probability ratio
+        $adjustedMax = $max + ($max - $min) * ($probabilityRatio - 1);
+
+        // Generate a random decimal number within the range
+        $randomDecimal = mt_rand($min * 10000, $adjustedMax * 10000) / 10000;
+
+        // Check if the random decimal number needs to be adjusted
+        if ($randomDecimal > $max) {
+            // Set the number to the maximum value
+            $randomDecimal = $max;
+        }
+
+        return $randomDecimal;
+    }
+}
+
+if (!function_exists('getReturnAmountRange')) {
+    function getReturnAmountRange($userMining)
+    {
+        if ($userMining->userPlan->plan->return_type == RETURN_TYPE_RANDOM) {
+
+            if (!is_null($userMining->user_hardware_id)) {
+                $allHardware = Hardware::where('status', STATUS_ACTIVE)->orderBy('speed', 'ASC')->get();
+                $maxSpeed = $allHardware->max('speed');
+                $hardwareRange = [];
+                foreach ($allHardware as $hardware) {
+                    $hardwareRange[$hardware->id] = ($hardware->speed / $maxSpeed);
+                }
+
+                $max = ($userMining->userPlan->plan->max_return_amount_per_day * $hardwareRange[$userMining->userHardware->hardware_id]);
+                return ['min' => $userMining->userPlan->plan->min_return_amount_per_day, 'max' => $max];
+            }
+
+            return ['min' => $userMining->userPlan->plan->min_return_amount_per_day, 'max' => $userMining->userPlan->plan->min_return_amount_per_day];
+        }
+
+        return ['min' => $userMining->userPlan->plan->return_amount_per_day, 'max' => $userMining->userPlan->plan->return_amount_per_day];
+    }
+}
+
+if (!function_exists('getPlanEarningEstimation')) {
+    function getPlanEarningEstimation($plan)
+    {
+        if ($plan->return_type == RETURN_TYPE_FIXED) {
+            return $plan->return_amount_per_day . ' ' . $plan->coin->coin_type;
+        } elseif ($plan->return_type == RETURN_TYPE_RANDOM) {
+            return $plan->min_return_amount_per_day . ' ' . $plan->coin->coin_type . '-' . $plan->max_return_amount_per_day . ' ' . $plan->coin->coin_type;
+        }
+    }
+}
+
+if (!function_exists('getNotification')) {
+    function getNotification($seen_status = null)
+    {
+        return Notification::where(function ($query) {
+            $query->where('receiver_id', null)->orWhere('receiver_id', Auth::id());
+        })->where('status', ACTIVE)
+            ->where(function ($query) use ($seen_status) {
+                if ($seen_status == NOTIFICATION_STATUS_SEEN) {
+                    $query->where('seen_status', NOTIFICATION_STATUS_SEEN);
+                } else if ($seen_status == NOTIFICATION_STATUS_UNSEEN) {
+                    $query->where('seen_status', NOTIFICATION_STATUS_UNSEEN);
+                }
+            })
+            ->orderBy('id', 'DESC')
+            ->get();
+    }
+}
+
+function get_clientIp()
 {
-    $data = EmailTemplate::where('tenant_id', getTenantId())->where('slug', $category)->first();
-    if ($data && $data != NULL) {
+    return isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : '0.0.0.0';
+}
+
+
+function getEmailTemplate($category, $property, $link = null)
+{
+    $data = EmailTemplate::where('category', $category)->first();
+    if ($data && $data != null) {
         if ($property == 'body') {
             $body = $data->{$property};
             foreach (emailTempFields() as $key => $item) {
-                if ($key == '{{link}}') {
+                if ($key == '{{reset_password_url}}') {
                     $body = str_replace($key, $link, $body);
-                } elseif ($key == '{{transaction_no}}' && $customData != NULL && isset($customData['transaction_no'])) {
-                    $body = str_replace($key, is_object($customData)?$customData->transaction_no:$customData['transaction_no'], $body);
-                } elseif ($key == '{{ticket_number}}' && $customData != NULL && isset($customData['ticket_number'])) {
-                    $body = str_replace($key, is_object($customData)?$customData->ticket_number:$customData['ticket_number'], $body);
-                } elseif ($key == '{{username}}') {
-                    $body = str_replace($key, $userData->name, $body);
-                } elseif ($key == '{{app_contact_number}}' && !empty(getOption('app_contact_number'))) {
-                    $body = str_replace($key, getOption('app_contact_number'), $body);
-                } elseif ($key == '{{app_email}}' && !empty(getOption('app_email'))) {
-                    $body = str_replace($key, getOption('app_email'), $body);
-                } elseif ($key == '{{app_name}}' && !empty(getOption('app_name'))) {
-                    $body = str_replace($key, getOption('app_name'), $body);
-                } elseif ($key == '{{otp}}') {
-                    $body = str_replace($key, $userData->otp, $body);
-                } else {
-                    $body = str_replace($key, $item, $body);
                 }
+                if ($key == '{{email_verify_url}}') {
+                    $body = str_replace($key, $link, $body);
+                }
+                $body = str_replace($key, $item, $body);
             }
             return $body;
-        } elseif ($property == 'subject') {
-
-            $subject = $data->{$property};
-            foreach (emailTempFields() as $key => $item) {
-                if ($key == '{{customField}}') {
-                    $subject = str_replace($key, $customData->customField, $subject);
-                }
-            }
-            return $subject;
         } else {
             return $data->{$property};
         }
     }
+
     return '';
+
 }
 
-if (!function_exists('setCommonNotification')) {
-    function setCommonNotification($title, $details, $link = NULL, $userId = NULL)
+if (!function_exists('getPaymentStatusHtml')) {
+    function getPaymentStatusHtml($status)
     {
-        try {
-            DB::beginTransaction();
-            $obj = new Notification();
-            $obj->user_id = $userId != NULL ? $userId : NULL;
-            $obj->title = $title;
-            $obj->body = $details;
-            $obj->link = $link != NULL ? $link : NULL;
-            $obj->tenant_id = getTenantId();
-            $obj->save();
-            DB::commit();
-            return true;
-        } catch (Exception $e) {
-            DB::rollBack();
-            return false;
+        $html = '';
+        if ($status == PAYMENT_STATUS_SUCCESS) {
+            $html = '<p class="zBadge zBadge-active">' . __('Paid') . '</p>';
+        } elseif ($status == PAYMENT_STATUS_CANCEL) {
+            $html = '<p class="zBadge zBadge-deactivate">' . __('Canceled') . '</p>';
+        } elseif ($status == PAYMENT_STATUS_PENDING) {
+            $html = '<p class="zBadge zBadge-pending">' . __('Pending') . '</p>';
         }
+        return $html;
     }
 }
 
-if (!function_exists('userNotification')) {
-    function userNotification($type)
+if (!function_exists('getUserStatusHtml')) {
+    function getUserStatusHtml($status)
     {
-        if ($type == 'seen') {
-            return Notification::leftJoin('notification_seens', 'notifications.id', '=', 'notification_seens.notification_id')
-                ->where(function ($query) {
-                    $query->where('notifications.user_id', null)->orWhere('notifications.user_id', Auth::id());
-                })
-                ->where('notifications.status', ACTIVE)
-                ->where('notification_seens.id', '!=', null)
-                ->orderBy('id', 'DESC')
-                ->get([
-                    'notifications.*',
-                    'notification_seens.id as seen_id',
-                ]);
-        } else if ($type == 'unseen') {
-            return Notification::leftJoin('notification_seens', 'notifications.id', '=', 'notification_seens.notification_id')
-                ->where(function ($query) {
-                    $query->where('notifications.user_id', null)->orWhere('notifications.user_id', Auth::id());
-                })
-                ->where('notifications.status', ACTIVE)
-                ->where('notification_seens.id', null)
-                ->orderBy('id', 'DESC')
-                ->get([
-                    'notifications.*',
-                    'notification_seens.id as seen_id',
-                ]);
-
-        } else if ($type == 'seen-unseen') {
-            return Notification::leftJoin('notification_seens', 'notifications.id', '=', 'notification_seens.notification_id')
-                ->where(function ($query) {
-                    $query->where('notifications.user_id', null)->orWhere('notifications.user_id', Auth::id());
-                })
-                ->where('notifications.status', ACTIVE)
-                ->orderBy('id', 'DESC')
-                ->get([
-                    'notifications.*',
-                    'notification_seens.id as seen_id',
-                ]);
+        $html = '';
+        if ($status == USER_STATUS_ACTIVE) {
+            $html = '<p class="zBadge zBadge-active">' . __('Active') . '</p>';
+        } elseif ($status == USER_STATUS_INACTIVE) {
+            $html = '<p class="zBadge zBadge-deactivate">' . __('Inactive') . '</p>';
+        } elseif ($status == USER_STATUS_UNVERIFIED) {
+            $html = '<p class="zBadge zBadge-pending">' . __('Unverified') . '</p>';
         }
-
+        return $html;
     }
 }
 
-if (!function_exists('getSubText')) {
-    function getSubText($html, $limit= 100000)
+if (!function_exists('getFileProperty')) {
+    function getFileProperty($id, $property)
     {
-        return \Illuminate\Support\Str::limit(strip_tags($html), $limit);
-    }
-}
-if (!function_exists('getPaymentType')) {
-    function getPaymentType($object)
-    {
-        return $className = class_basename(get_class($object));
-    }
-}
-if (!function_exists('thousandFormat')) {
-    function thousandFormat($number) {
-        $number = (int) preg_replace('/[^0-9]/', '', $number);
-        if ($number >= 1000) {
-            $rn = round($number);
-            $format_number = number_format($rn);
-            $ar_nbr = explode(',', $format_number);
-            $x_parts = array('K', 'M', 'B', 'T', 'Q');
-            $x_count_parts = count($ar_nbr) - 1;
-            $dn = $ar_nbr[0] . ((int) $ar_nbr[1][0] !== 0 ? '.' . $ar_nbr[1][0] : '');
-            $dn .= $x_parts[$x_count_parts - 1];
-
-            return $dn;
+        $file = FileHandler::find($id);
+        $respose = null;
+        if (!is_null($file)) {
+            return $file->{$property};
         }
-        return $number;
+        return $respose;
     }
 }
 
-if (!function_exists('getTicketNumber')) {
-    function getTicketNumber($eventId, $oldTotal) {
-        return $eventId.sprintf('%04d', ++$oldTotal);
-    }
-}
-
-if (!function_exists('userMessageUnseen')) {
-    function userMessageUnseen() {
-        return Chat::where('chats.tenant_id', getTenantId())->where('receiver_id', auth()->id())->where('is_seen', STATUS_PENDING)->count();
-    }
-}
-
-if (!function_exists('isOnline')) {
-    function isOnline($last_seen) {
-        return Carbon::parse($last_seen)->gte(now());
-    }
-}
-
-if (!function_exists('isCentralDomain')) {
-    function isCentralDomain() {
-        $central_domains = Config::get('tenancy.central_domains')[0];
-        return getHostFromURL($central_domains) == getHostFromURL(request()->getHost());
-    }
-}
-
-if (!function_exists('centralDomain')) {
-    function centralDomain() {
-        return Config::get('tenancy.central_domains')[0];
-
-    }
-}
-
-if (!function_exists('gatewaySettings')) {
-    function gatewaySettings()
+if (!function_exists('getStatusHtml')) {
+    function getStatusHtml($status)
     {
-        return '{"paypal":[{"label":"Url","name":"url","is_show":0},{"label":"Client ID","name":"key","is_show":1},{"label":"Secret","name":"secret","is_show":1}],"stripe":[{"label":"Url","name":"url","is_show":0},{"label":"Public Key","name":"key","is_show":1},{"label":"Secret Key","name":"secret","is_show":0}],"razorpay":[{"label":"Url","name":"url","is_show":0},{"label":"Key","name":"key","is_show":1},{"label":"Secret","name":"secret","is_show":1}],"instamojo":[{"label":"Url","name":"url","is_show":0},{"label":"Api Key","name":"key","is_show":1},{"label":"Auth Token","name":"secret","is_show":1}],"mollie":[{"label":"Url","name":"url","is_show":0},{"label":"Mollie Key","name":"key","is_show":1},{"label":"Secret","name":"secret","is_show":0}],"paystack":[{"label":"Url","name":"url","is_show":0},{"label":"Public Key","name":"key","is_show":1},{"label":"Secret Key","name":"secret","is_show":0}],"mercadopago":[{"label":"Url","name":"url","is_show":0},{"label":"Client ID","name":"key","is_show":1},{"label":"Client Secret","name":"secret","is_show":1}],"sslcommerz":[{"label":"Url","name":"url","is_show":0},{"label":"Store ID","name":"key","is_show":1},{"label":"Store Password","name":"secret","is_show":1}],"flutterwave":[{"label":"Hash","name":"url","is_show":1},{"label":"Public Key","name":"key","is_show":1},{"label":"Client Secret","name":"secret","is_show":1}],"coinbase":[{"label":"Hash","name":"url","is_show":0},{"label":"API Key","name":"key","is_show":1},{"label":"Client Secret","name":"secret","is_show":0}]}';
-    }
-}
-
-if (!function_exists('generateRandomString')) {
-    function generateRandomString($length = 8)
-    {
-        $characters = 'abcdefghijklmnopqrstuvwxyz';
-        $charactersLength = strlen($characters);
-        $randomString = '';
-        for ($i = 0; $i < $length; $i++) {
-            $randomString .= $characters[random_int(0, $charactersLength - 1)];
-        }
-        return $randomString;
-    }
-}
-
-if (!function_exists('copyFolder')) {
-    function copyFolder($source, $destination)
-    {
-        if (is_dir($source)) {
-            if (!is_dir($destination)) {
-                mkdir($destination, 0755, true); // Create the destination directory if it doesn't exist
-            }
-
-            $dir = opendir($source);
-
-            while (false !== ($file = readdir($dir))) {
-                if (($file != '.') && ($file != '..')) {
-                    $src = $source . '/' . $file;
-                    $dest = $destination . '/' . $file;
-
-                    if (is_dir($src)) {
-                        // If it's a directory, recursively call the function
-                        copyFolder($src, $dest);
-                    } else {
-                        // If it's a file, use copy() to copy it
-                        copy($src, $dest);
-                    }
-                }
-            }
-
-            closedir($dir);
+        $html = '';
+        if ($status == STATUS_ACTIVE) {
+            $html = '<p class="zBadge zBadge-active">Active</p>';
         } else {
-            // If the source is a file, use copy() to copy it
-            copy($source, $destination);
+            $html = '<p class="zBadge zBadge-deactivate">Deactivate</p>';
         }
+        return $html;
     }
 }
 
-if (!function_exists('userCurrentPackage')) {
-    function userCurrentPackage($tenantId)
+if (!function_exists('getStatusForEnrolment')) {
+    function getStatusForEnrolment($status)
     {
-        return UserPackage::query()
-            ->where('status', ACTIVE)
-            ->where('tenant_id', $tenantId)
-            ->where('end_date', '>=', now())->with('package')
-            ->first();
-    }
-}
-
-function getTenantId()
-{
-    if (isCentralDomain()) {
-        if(isAddonInstalled('ALUSAAS')){
-            return auth()->user()?->tenant_id;
-        }else{
-            return \Stancl\Tenancy\Database\Models\Domain::first()->tenant_id;
+        $html = '';
+        if ($status == ENROLMENT_APPROVED) {
+            $html = '<p class="zBadge zBadge-active">Approved</p>';
+        } elseif ($status == ENROLMENT_PENDING) {
+            $html = '<p class="zBadge zBadge-deactivate bg-progress text-white">Pending</p>';
+        } elseif ($status == ENROLMENT_RUNNING) {
+            $html = '<p class="zBadge zBadge-deactivate bg-info text-body">Running</p>';
+        } elseif ($status == ENROLMENT_CANCEL) {
+            $html = '<p class="zBadge zBadge-deactivate text-cancel bg-danger">Cancel</p>';
+        } elseif ($status == ENROLMENT_COMPLEATE) {
+            $html = '<p class="zBadge zBadge-deactivate bg-green text-white">Compleate</p>';
+        } else {
+            $html = '<p class="zBadge zBadge-deactivate bg-black text-cancel">Close</p>';
         }
-    }else{
-        return tenant('id');
+        return $html;
     }
 }
-
-
-function getPackageLimit($rule){
-    $userPackage = userCurrentPackage(getTenantId());
-    if($rule == PACKAGE_RULE_EXPIRED) {
-        return is_null($userPackage) && isAddonInstalled('ALUSAAS') ? true : false;
-    }else if($rule == PACKAGE_RULE_CUSTOM_DOMAIN){
-        return !is_null($userPackage) && $userPackage->package->custom_domain && isAddonInstalled('ALUSAAS') == STATUS_ACTIVE;
-    }else {
-        if ($rule == PACKAGE_RULE_ALUMNI_LIMIT) {
-            $alumniCount = \App\Models\Alumni::where('tenant_id', getTenantId())->count();
-            if (!is_null($userPackage) && $userPackage->package->alumni_limit == -1){
-                return -1;
-            }
-            return !is_null($userPackage) ? $userPackage->package->alumni_limit - $alumniCount : 0;
-        } else if ($rule == PACKAGE_RULE_EVENT_LIMIT) {
-            $eventCount = \App\Models\Event::where('tenant_id', getTenantId())->count();
-            if (!is_null($userPackage) && $userPackage->package->event_limit == -1){
-                return -1;
-            }
-            return !is_null($userPackage) ? $userPackage->package->event_limit - $eventCount : 0;
-        }
-    }
-}
-
-if (!function_exists('addLeadingZero')) {
-    function addLeadingZero($number) {
-        return str_pad($number, 2, '0', STR_PAD_LEFT);
-    }
-}
-if (!function_exists('getHostFromURL')) {
-    function getHostFromURL($url)
+if (!function_exists('getPayableAmountByPaymentId')) {
+    function getPayableAmountByPaymentId($paymentId, $enrolmentId, $studentId)
     {
-        // Remove scheme (http://, https://) from the URL
-        $url = preg_replace('#^https?://#', '', $url);
-
-        // Remove www. if present
-        $url = preg_replace('#^www\.#', '', $url);
-
-        // Extract the domain name
-        $parts = explode('/', $url);
-        $domain = array_shift($parts);
-
-        return $domain;
+        $payableAmount = 0;
+        $getPaymentData = Payment::where(['enrolment_id' => $enrolmentId, 'student_id' => $studentId, 'status' => PAYMENT_STATUS_SUCCESS])->get();
+        if (!empty($getPaymentData)) {
+            $totalPaidAmount = 0;
+            foreach ($getPaymentData as $item) {
+                if ($item->id == $paymentId) {
+                    $payableAmount = $item->contact_amount - $totalPaidAmount;
+                    break;
+                }
+                $totalPaidAmount = $totalPaidAmount + $item->amount;
+            }
+        }
+        return $payableAmount;
     }
 }
+
+if (!function_exists('getDueAmountByPaymentId')) {
+    function getDueAmountByPaymentId($paymentId, $enrolmentId, $studentId)
+    {
+        $dueAmount = 0;
+        $getPaymentData = Payment::query()
+            ->where(['enrolment_id' => $enrolmentId, 'student_id' => $studentId, 'status' => PAYMENT_STATUS_SUCCESS])->get();
+        if (!empty($getPaymentData)) {
+            $totalPaidAmount = 0;
+            foreach ($getPaymentData as $key => $item) {
+                if ($item->id == $paymentId) {
+                    $totalPaidAmount = $totalPaidAmount + $item->amount;
+                    $dueAmount = $item->contact_amount - $totalPaidAmount;
+                    break;
+                }
+                $totalPaidAmount = $totalPaidAmount + $item->amount;
+            }
+        }
+        return $dueAmount;
+    }
+}
+
+if (!function_exists('generateUserActivityLog')) {
+    function generateUserActivityLog($activity_name, $user_id)
+    {
+        $current_ip = get_clientIp();
+        $agent = new Agent();
+        $deviceType = isset($agent) && $agent->isMobile() == true ? 'Mobile' : 'Web';
+        $location = geoip()->getLocation($current_ip);
+        $activity['user_id'] = $user_id;
+        $activity['activity'] = $activity_name;
+        $activity['ip_address'] = isset($current_ip) ? $current_ip : '0.0.0.0';
+        $activity['source'] = $deviceType;
+        $activity['location'] = $location->country;
+        UserActivity::create($activity);
+    }
+}
+if (!function_exists('getUserData')) {
+    function getUserData($id)
+    {
+       $user = User::find($id);
+       if (!is_null($user)){
+           return $user;
+       }
+       return null;
+    }
+}
+
+
