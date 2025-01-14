@@ -36,7 +36,7 @@
 <div class="modal" id="add-modal" aria-hidden="true" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content zModalTwo-content">
-            <form class="ajax-request reset" action="{{route('country.store')}}" method="POST" data-handler="commonResponse">
+            <form class="ajax-request reset" action="{{route('admin.country.store')}}" method="POST" data-handler="commonResponse">
                 @csrf
                 <div class="modal-body zModalTwo-body">
                     <div class="d-flex justify-content-between align-items-center pb-30">
@@ -83,7 +83,7 @@
     </div>
 </div>
 <!-- Edit Modal section end -->
-<input type="hidden" id="country-list-route" value="{{ route('country.all') }}">
+<input type="hidden" id="country-list-route" value="{{ route('admin.country.all') }}">
 @endsection
 
 @push('script')

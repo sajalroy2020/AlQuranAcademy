@@ -4,7 +4,7 @@
   <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
 <!--  -->
-<form class="ajax-request reset" action="{{route('country.store')}}" method="POST" data-handler="commonResponse">
+<form class="ajax-request reset" action="{{route('admin.country.store')}}" method="POST" data-handler="commonResponse">
   @csrf
   <input type="hidden" name="id" value="{{$country->id}}">
 

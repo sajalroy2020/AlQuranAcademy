@@ -31,7 +31,7 @@
           </a>
         </li>
         <li class="nav-item">
-          <a class="nav-link {{@$activeStudent}}" href="{{route('student.all')}}">
+          <a class="nav-link {{@$activeStudent}}" href="{{route('admin.student.all')}}">
             <div class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
               <svg width="12px" height="12px" viewBox="0 0 42 42" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
                 <title>box-3d-50</title>
@@ -96,7 +96,7 @@
           </a>
           <div class="collapse" id="collapseExample1" data-bs-parent="#sidebarMenu">
               <ul class="ms-4">
-                  <li><a class="text-xs {{@$activeCountry}}" href="{{route('country.all')}}">{{__('Country List')}}</a></li>
+                  <li><a class="text-xs {{@$activeCountry}}" href="{{route('admin.country.all')}}">{{__('Country List')}}</a></li>
                   <li><a class="text-xs{{@$activeState}}" href="{{route('admin.state.all')}}">{{__('State List')}}</a></li>
               </ul>
           </div>

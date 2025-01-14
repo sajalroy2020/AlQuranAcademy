@@ -1,5 +1,9 @@
-<form class="ajax-request reset" action="{{route('student.store')}}" method="POST" data-handler="commonResponse">
+<form class="ajax-request reset" action="{{route('admin.student.store')}}" method="POST" data-handler="commonResponse">
     @csrf
+
+    <input type="hidden" name="id" value="{{$student->id}}">
+    <input type="hidden" name="applicant_info_id" value="{{$student?->applicant_info?->id}}">
+
     <div class="modal-body">
         <div class="d-flex justify-content-between align-items-center pb-30">
             <h5>{{__('Edit Student')}}</h5>
@@ -57,7 +61,7 @@
                       <select class="form-control" id="BatchName" name="course_id">
                         <option value="">{{__("Select Course")}}</option>
                         @foreach ($courseList as $data)
-                            <option {{$student->course_id == $data->id ? 'selected' : ''}} value="{{$data->id}}">{{$data->subject_name}}</option>
+                            <option {{$student?->applicant_info?->course_id == $data->id ? 'selected' : ''}} value="{{$data->id}}">{{$data->subject_name}}</option>
                         @endforeach
                       </select>
                     </div>

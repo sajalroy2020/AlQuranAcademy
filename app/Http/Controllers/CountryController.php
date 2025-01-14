@@ -24,10 +24,10 @@ class CountryController extends Controller
                 // })
                 ->addColumn('action', function ($data){
                     return '<div class="d-flex align-items-center g-10 justify-content-center">
-                                <button onclick="editCommonModal(\'' . route('country.edit', $data->id) . '\'' . ', \'#editModal\')" class="border-0 bg-transparent" data-bs-toggle="modal" title="Edit">
+                                <button onclick="editCommonModal(\'' . route('admin.country.edit', $data->id) . '\'' . ', \'#editModal\')" class="border-0 bg-transparent" data-bs-toggle="modal" title="Edit">
                                     <img src="' . asset('dashboard/assets/img/icon/edit.svg') . '" alt="edit" />
                                 </button>
-                                <button onclick="deleteCommonMethod(\'' . route('country.delete', $data->id) . '\', \'countryDataTable\')" class="border-0 bg-transparent" title="Delete">
+                                <button onclick="deleteCommonMethod(\'' . route('admin.country.delete', $data->id) . '\', \'countryDataTable\')" class="border-0 bg-transparent" title="Delete">
                                     <img src="' . asset('dashboard/assets/img/icon/delete.svg') . '" alt="delete">
                                 </button>
                         </div>';

@@ -37,7 +37,7 @@
 <div class="modal" id="add-modal" aria-hidden="true" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
-            <form class="ajax-request reset" action="{{route('student.store')}}" method="POST" data-handler="commonResponse">
+            <form class="ajax-request reset" action="{{route('admin.student.store')}}" method="POST" data-handler="commonResponse">
                 @csrf
                 <div class="modal-body">
                     <div class="d-flex justify-content-between align-items-center pb-30">
@@ -154,8 +154,8 @@
 </div>
 <!-- Edit Modal section end -->
 
-<input type="hidden" id="student-list-route" value="{{ route('student.all') }}">
-<input type="hidden" id="get-state-route" value="{{ route('student.get-state') }}">
+<input type="hidden" id="student-list-route" value="{{ route('admin.student.all') }}">
+<input type="hidden" id="get-state-route" value="{{ route('admin.student.get-state') }}">
 
 @endsection
 

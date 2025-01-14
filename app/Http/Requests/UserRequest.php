@@ -24,10 +24,12 @@ class UserRequest extends FormRequest
      */
     public function rules()
     {
+        $id = isset($this->id)?$this->id:null;
+
         return [
             'name' => ['required', 'max:120'],
-            "email" => ['bail','required','email', Rule::unique('users','email')->whereNull('deleted_at')],
-            "phone" => ['bail','required','numeric', Rule::unique('users','phone')->whereNull('deleted_at')],
+            "email" => ['bail','required','email', Rule::unique('users','email')->ignore($id, 'id')->whereNull('deleted_at')],
+            "phone" => ['bail','required','numeric', Rule::unique('users','phone')->ignore($id, 'id')->whereNull('deleted_at')],
             'gender' => ['required'],
             'course_id' => ['required'],
             'country_id' => ['required'],
