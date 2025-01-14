@@ -2,12 +2,15 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\UserRequest;
-use App\Models\User;
-use App\Traits\JsonResponseTrait;
-use Illuminate\Http\Request;
 use Exception;
+use App\Models\User;
+use App\Models\State;
+use App\Models\Course;
+use App\Models\Country;
+use Illuminate\Http\Request;
+use App\Traits\JsonResponseTrait;
 use Illuminate\Support\Facades\DB;
+use App\Http\Requests\UserRequest;
 use Illuminate\Support\Facades\Log;
 
 class StudentController extends Controller
@@ -16,7 +19,8 @@ class StudentController extends Controller
 
     public function allStudent(Request $request){
         if ($request->ajax()) {
-            $student = User::query();
+            $student = User::where('role', USER_ROLE_STUDENT);
+
             return datatables($student)
                 ->addIndexColumn()
                 ->addColumn('action', function ($data){
@@ -33,8 +37,12 @@ class StudentController extends Controller
                 ->make(true);
         }
 
+        $data['countryList'] = Country::where('status', STATUS_ACTIVE)->get();
+        $data['courseList'] = Course::where('status', STATUS_ACTIVE)->get();
+
         $data['activeStudent'] = 'active';
         $data['pageTitle'] = __('All Student');
+
         return view('admin.student.index', $data);
     }
 
@@ -60,6 +68,21 @@ class StudentController extends Controller
             Log::info($e->getMessage());
             return $this->errorResponse([], __(MSG_SOMETHING_WENT_WRONG));
         }
+    }
+
+    public function edit($id)
+    {
+        $data['student'] = User::find($id);
+        $data['countryList'] = Country::where('status', STATUS_ACTIVE)->get();
+        $data['courseList'] = Course::where('status', STATUS_ACTIVE)->get();
+        $data['state'] = State::where('status', STATUS_ACTIVE)->get();
+
+        return view('admin.student.edit', $data);
+    }
+
+    public function getState(Request $request){
+        $data['state'] = State::where('country_id', $request->id)->get();
+        return view('admin.student.state-dropdown', $data)->render();
     }
 
     public function delete($id){

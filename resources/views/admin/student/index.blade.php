@@ -36,10 +36,10 @@
 <!-- Add Modal section start -->
 <div class="modal" id="add-modal" aria-hidden="true" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content zModalTwo-content">
+        <div class="modal-content">
             <form class="ajax-request reset" action="{{route('student.store')}}" method="POST" data-handler="commonResponse">
                 @csrf
-                <div class="modal-body zModalTwo-body">
+                <div class="modal-body">
                     <div class="d-flex justify-content-between align-items-center pb-30">
                         <h5>{{__('Add New Student')}}</h5>
                         <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -74,9 +74,9 @@
                                 <div class="primary-form-group-wrap">
                                   <label for="BatchName" class="form-label">{{ __('Gender Select') }} <span class="text-danger">*</span></label>
                                   <select class="form-control" id="BatchName" name="gender">
-                                    <option value="1">{{ __('Male') }}</option>
-                                    <option value="2">{{ __('Fimale') }}</option>
-                                    <option value="3">{{ __('Other') }}</option>
+                                    <option value="{{GENDER_MALE}}">{{ __('Male') }}</option>
+                                    <option value="{{GENDER_FEMALE}}">{{ __('Fimale') }}</option>
+                                    <option value="{{GENDER_OTHERS}}">{{ __('Other') }}</option>
                                   </select>
                                 </div>
                             </div>
@@ -94,8 +94,10 @@
                                 <div class="primary-form-group-wrap">
                                   <label for="BatchName" class="form-label">{{ __('Course Select') }} <span class="text-danger">*</span></label>
                                   <select class="form-control" id="BatchName" name="course_id">
-                                    <option value="1">{{ __('Al Quran') }}</option>
-                                    <option value="2">{{ __('Urdu') }}</option>
+                                    <option value="">{{__("Select Course")}}</option>
+                                    @foreach ($courseList as $data)
+                                        <option value="{{$data->id}}">{{$data->subject_name}}</option>
+                                    @endforeach
                                   </select>
                                 </div>
                             </div>
@@ -104,11 +106,11 @@
                             <div class="primary-form-group my-2 pt-2">
                                 <div class="primary-form-group-wrap">
                                   <label for="BatchName" class="form-label">{{ __('Country Select') }} <span class="text-danger">*</span></label>
-                                  <select class="form-control" id="BatchName" name="country_id">
-                                    <option value="1">{{ __('Bangladesh') }}</option>
-                                    <option value="2">{{ __('Pakisthan') }}</option>
-                                    <option value="3">{{ __('USA') }}</option>
-                                    <option value="4">{{ __('Landon') }}</option>
+                                  <select class="form-control getCountryState" id="BatchName" name="country_id">
+                                    <option value="">{{__("Select Country")}}</option>
+                                    @foreach ($countryList as $data)
+                                        <option value="{{$data->id}}">{{$data->name}}</option>
+                                    @endforeach
                                   </select>
                                 </div>
                             </div>
@@ -117,11 +119,8 @@
                             <div class="primary-form-group my-2 pt-2">
                                 <div class="primary-form-group-wrap">
                                   <label for="BatchName" class="form-label">{{ __('State Select') }} <span class="text-danger">*</span></label>
-                                  <select class="form-control" id="BatchName" name="state_id">
-                                    <option value="1">{{ __('US') }}</option>
-                                    <option value="2">{{ __('PK') }}</option>
-                                    <option value="3">{{ __('USA') }}</option>
-                                    <option value="4">{{ __('OJ') }}</option>
+                                  <select class="form-control addState" id="BatchName" name="state_id">
+                                    <option value="">{{__("Select State")}}</option>
                                   </select>
                                 </div>
                             </div>
@@ -146,15 +145,18 @@
 <!-- Add Modal section end -->
 
 <!-- Edit Modal section start -->
-<div class="modal fade zModalTwo" id="editModal" aria-hidden="true" tabindex="-1">
+<div class="modal fade" id="editModal" aria-hidden="true" tabindex="-1">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content zModalTwo-content">
+        <div class="modal-content">
 
         </div>
     </div>
 </div>
 <!-- Edit Modal section end -->
+
 <input type="hidden" id="student-list-route" value="{{ route('student.all') }}">
+<input type="hidden" id="get-state-route" value="{{ route('student.get-state') }}">
+
 @endsection
 
 @push('script')

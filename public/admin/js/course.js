@@ -1,25 +1,13 @@
 (function ($) {
     "use strict";
 
-
-    // get country wise state
-    $(document).ready(function () {
-        $(document).on('change', '.getCountryState', function() {
-            commonAjaxRequest('GET', $('#get-state-route').val(), dataResponse, dataResponse, { id: $(this).val() });
-        });
-    });
-    function dataResponse(response) {
-        $(".addState").html(response.responseText);
-    }
-
-
-    $("#studentDataTable").DataTable({
+    $("#courseDataTable").DataTable({
         pageLength: 10,
         ordering: false,
         serverSide: true,
         processing: true,
         searching: true,
-        ajax: $('#student-list-route').val(),
+        ajax: $('#course-list-route').val(),
         language: {
 			paginate: {
 				previous: "<i class='fa-solid fa-angles-left'></i>",
@@ -30,9 +18,8 @@
 		},
 		dom: '<"tableTop"<"row align-items-center"<"col-sm-6"<"tableSearch float-start"f>><"col-sm-6"<"tableLengthInput float-end"l>>>>tr<"tableBottom"<"row align-items-center"<"col-sm-6"<"tableInfo"i>><"col-sm-6"<"tablePagi"p>>>><"clear">',
 		columns: [
-            {"data": "name", "name": "name"},
-            {"data": "email", "name": "email"},
-            {"data": "phone", "name": "phone"},
+            {"data": "subject_name", "name": "subject_name"},
+            {"data": "status", "name": "status"},
             {"data": "action", searchable: false, responsivePriority:2},
         ],
       });

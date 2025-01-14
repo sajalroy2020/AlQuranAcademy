@@ -61,11 +61,9 @@ const USER_STATUS_INACTIVE = 0;
 const USER_STATUS_ACTIVE = 1;
 const USER_STATUS_UNVERIFIED = 2;
 
-const USER_ROLE_SUPER_ADMIN = 1;
-const USER_ROLE_ADMIN = 2;
-const USER_ROLE_STAFF = 3;
-const USER_ROLE_INSTRUCTOR = 4;
-const USER_ROLE_STUDENT = 5;
+const USER_ROLE_ADMIN = 1;
+const USER_ROLE_TEACHER = 2;
+const USER_ROLE_STUDENT = 3;
 
 // Message constant
 // Message
