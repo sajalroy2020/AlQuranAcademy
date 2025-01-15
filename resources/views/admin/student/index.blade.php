@@ -89,7 +89,16 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="col-12">
+                        <div class="col-12 pt-3">
+                            <label for="BatchName" class="form-label">{{ __('Course Select') }} <span class="text-danger">*</span></label>
+                            <select class="form-select form-control multiple-select-clear-field" data-placeholder="Select Teacher Course" multiple name="course_id[]">
+                                @foreach ($courseList as $data)
+                                    <option value="{{$data->id}}">{{$data->subject_name}}</option>
+                                @endforeach
+                            </select>
+                            <div class="course_id"></div>
+                        </div>
+                        <!-- <div class="col-12">
                             <div class="primary-form-group my-2 pt-2">
                                 <div class="primary-form-group-wrap">
                                   <label for="BatchName" class="form-label">{{ __('Course Select') }} <span class="text-danger">*</span></label>
@@ -101,7 +110,7 @@
                                   </select>
                                 </div>
                             </div>
-                        </div>
+                        </div> -->
                         <div class="col-12">
                             <div class="primary-form-group my-2 pt-2">
                                 <div class="primary-form-group-wrap">

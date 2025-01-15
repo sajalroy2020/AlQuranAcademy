@@ -20,7 +20,7 @@ class StudentController extends Controller
 
     public function allStudent(Request $request){
         if ($request->ajax()) {
-            $student = User::with('applicantInfo')->where('role', USER_ROLE_STUDENT);
+            $student = User::with('applicant_info')->where('role', USER_ROLE_STUDENT);
 
             return datatables($student)
                 ->addIndexColumn()
@@ -55,11 +55,9 @@ class StudentController extends Controller
             if ($id != 0) {
                 $id = $id;
                 $student = User::find($id);
-                $applicantInfo = ApplicantInfo::find($request->applicant_info_id);
                 $msg = __(MSG_UPDATED_SUCCESSFULLY);
             } else {
                 $student = new User();
-                $applicantInfo = new ApplicantInfo();
                 $msg = __(MSG_CREATED_SUCCESSFULLY);
             }
 
@@ -73,10 +71,16 @@ class StudentController extends Controller
             $student->password = $request->password;
             $student->save();
 
-            if ($request->course_id) {
-                $applicantInfo->student_id = $student->id;
-                $applicantInfo->course_id = $request->course_id;
-                $applicantInfo->save();
+             // student multipole course add record
+             if ($request->course_id) {
+                ApplicantInfo::where('student_id', $student->id)->delete();
+
+                foreach ($request->course_id as $key => $value) {
+                    $applicantInfo = new ApplicantInfo();
+                    $applicantInfo->student_id = $student->id;
+                    $applicantInfo->course_id = $value;
+                    $applicantInfo->save();
+                }
             }
 
             DB::commit();
@@ -91,7 +95,7 @@ class StudentController extends Controller
 
     public function edit($id)
     {
-        $data['student'] = User::with('applicantInfo')->find($id);
+        $data['student'] = User::with('applicant_info')->find($id);
         $data['countryList'] = Country::where('status', STATUS_ACTIVE)->get();
         $data['courseList'] = Course::where('status', STATUS_ACTIVE)->get();
         $data['state'] = State::where('status', STATUS_ACTIVE)->get();

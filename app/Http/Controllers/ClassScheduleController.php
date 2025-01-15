@@ -12,6 +12,7 @@ use Illuminate\Http\Request;
 use Exception;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Carbon\Carbon;
 
 class ClassScheduleController extends Controller
 {
@@ -23,9 +24,9 @@ class ClassScheduleController extends Controller
             return datatables($schedule)
                 ->addIndexColumn()
 
-                ->addColumn('status', function ($schedule) {
-                    return getStatusHtml($schedule->status);
-                })
+                // ->addColumn('status', function ($schedule) {
+                //     return getStatusHtml($schedule->status);
+                // })
                 ->addColumn('teacher_name', function ($state) {
                     return $state->teacher_list->name;
                 })
@@ -83,6 +84,20 @@ class ClassScheduleController extends Controller
             } else {
                 $schedule = new ClassSchedule();
                 $msg = __(MSG_CREATED_SUCCESSFULLY);
+            }
+
+            $checkSchedule = ClassSchedule::where('teacher_id', $request->teacher_id)->where('date', $request->date)->get();
+
+            if ($checkSchedule->isNotEmpty()) {
+                foreach ($checkSchedule as $dataItem) {
+                    $existingStartTime = \Carbon\Carbon::parse($dataItem->start_time)->format('h:i A');
+                    $existingEndTime = \Carbon\Carbon::parse($dataItem->end_time)->format('h:i A');
+                    $requestedStartTime = \Carbon\Carbon::parse($request->start_time)->format('h:i A');
+
+                    if ( $existingStartTime <= $requestedStartTime && $existingEndTime > $requestedStartTime ) {
+                        return $this->errorResponse([], __('Already booked for this time'));
+                    }
+                }
             }
 
             $schedule->date = $request->date;

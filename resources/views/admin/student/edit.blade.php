@@ -2,7 +2,6 @@
     @csrf
 
     <input type="hidden" name="id" value="{{$student->id}}">
-    <input type="hidden" name="applicant_info_id" value="{{$student?->applicant_info?->id}}">
 
     <div class="modal-body">
         <div class="d-flex justify-content-between align-items-center pb-30">
@@ -54,18 +53,20 @@
                     </div>
                 </div>
             </div>
-            <div class="col-12">
-                <div class="primary-form-group my-2 pt-2">
-                    <div class="primary-form-group-wrap">
-                      <label for="BatchName" class="form-label">{{ __('Course Select') }} <span class="text-danger">*</span></label>
-                      <select class="form-control" id="BatchName" name="course_id">
-                        <option value="">{{__("Select Course")}}</option>
-                        @foreach ($courseList as $data)
-                            <option {{$student?->applicant_info?->course_id == $data->id ? 'selected' : ''}} value="{{$data->id}}">{{$data->subject_name}}</option>
-                        @endforeach
-                      </select>
-                    </div>
-                </div>
+            <div class="col-12 pt-3">
+                <label for="BatchName" class="form-label">{{ __('Course Select') }} <span class="text-danger">*</span></label>
+                <select class="form-select form-control" id="multiple-select-clear-field" data-placeholder="Select Student Course" multiple name="course_id[]">
+                  @foreach ($courseList as $data)
+                      <option value="{{ $data->id }}" 
+                          @if ($student && $student->applicant_info && $student->applicant_info->contains('course_id', $data->id))
+                              selected
+                          @endif
+                      >
+                          {{ $data->subject_name }}
+                      </option>
+                  @endforeach
+              </select>
+                <div class="course_id"></div>
             </div>
             <div class="col-12">
                 <div class="primary-form-group my-2 pt-2">
@@ -107,3 +108,15 @@
         <button type="submit" class="btn btn-primary w-25">{{ __('Update') }}</button>
     </div>
 </form>
+
+<script>
+  $(document).ready(function () {
+       $( '#multiple-select-clear-field' ).select2( {
+           theme: "bootstrap-5",
+           width: $( this ).data( 'width' ) ? $( this ).data( 'width' ) : $( this ).hasClass( 'w-100' ) ? '100%' : 'style',
+           placeholder: $( this ).data( 'placeholder' ),
+           closeOnSelect: false,
+           allowClear: true,
+       } );
+   });
+</script>

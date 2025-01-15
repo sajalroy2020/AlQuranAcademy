@@ -80,8 +80,8 @@
           </a>
           <div class="collapse" id="collapseExample3" data-bs-parent="#sidebarMenu">
               <ul class="ms-4">
-                  <li><a class="text-xs" href="{{route('admin.class-schedule.list')}}">{{__('Teacher Schedules List')}}</a></li>
-                  <li><a class="text-xs" href="{{route('admin.teacher.all')}}">{{__('Student Assign List')}}</a></li>
+                  <li><a class="text-xs" href="{{route('admin.class-schedule.list')}}">{{__('Teacher schedules list')}}</a></li>
+                  <li><a class="text-xs" href="{{route('admin.teacher.all')}}">{{__('Student class booking')}}</a></li>
               </ul>
           </div>
         </li>

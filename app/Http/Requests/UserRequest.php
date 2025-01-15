@@ -31,11 +31,12 @@ class UserRequest extends FormRequest
             "email" => ['bail','required','email', Rule::unique('users','email')->ignore($id, 'id')->whereNull('deleted_at')],
             "phone" => ['bail','required','numeric', Rule::unique('users','phone')->ignore($id, 'id')->whereNull('deleted_at')],
             'gender' => ['required'],
-            'course_id' => ['required'],
             'country_id' => ['required'],
             'state_id' => ['required'],
             'dob' => ['required', 'date'],
             'password' => 'bail|required|min:6',
+            'course_id' => ['required', 'array'],
+            "course_id.*" => ['bail','required'],
         ];
     }
 
@@ -48,6 +49,7 @@ class UserRequest extends FormRequest
     {
         return [
             'email.required' => 'The email field is required.',
+            'course_id.*.required' => __('The course field is required'),
         ];
     }
 }
