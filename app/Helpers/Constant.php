@@ -153,3 +153,8 @@ const ENROLMENT_RUNNING = 2;
 const ENROLMENT_CANCEL = 3;
 const ENROLMENT_COMPLEATE = 4;
 const ENROLMENT_CLOSE = 5;
+
+
+// class booking status 
+const CLASS_AVAILABLE = 1;
+const CLASS_BOOKED = 2;

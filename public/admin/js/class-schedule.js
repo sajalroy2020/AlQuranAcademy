@@ -1,33 +1,23 @@
 (function ($) {
     "use strict";
 
-    // multiple-select js 
-    $( '#multiple-select-clear-field' ).select2( {
-        theme: "bootstrap-5",
-        width: $( this ).data( 'width' ) ? $( this ).data( 'width' ) : $( this ).hasClass( 'w-100' ) ? '100%' : 'style',
-        placeholder: $( this ).data( 'placeholder' ),
-        closeOnSelect: false,
-        allowClear: true,
-    } );
-
-    // get country wise state
+    // get teacher wise course
     $(document).ready(function () {
-        $(document).on('change', '.getCountryState', function() {
-            commonAjaxRequest('GET', $('#get-state-route').val(), dataResponse, dataResponse, { id: $(this).val() });
+        $(document).on('change', '.getTeacherCourse', function() {
+            commonAjaxRequest('GET', $('#get-filter-course-route').val(), dataResponse, dataResponse, { id: $(this).val() });
         });
     });
     function dataResponse(response) {
-        $(".addState").html(response.responseText);
+        $(".addCourse").html(response.responseText);
     }
 
-
-    $("#studentDataTable").DataTable({
+    $("#classScheduleDataTable").DataTable({
         pageLength: 10,
         ordering: false,
         serverSide: true,
         processing: true,
         searching: true,
-        ajax: $('#student-list-route').val(),
+        ajax: $('#class-schedule-list-route').val(),
         language: {
 			paginate: {
 				previous: "<i class='fa-solid fa-angles-left'></i>",
@@ -38,9 +28,11 @@
 		},
 		dom: '<"tableTop"<"row align-items-center"<"col-sm-6"<"tableSearch float-start"f>><"col-sm-6"<"tableLengthInput float-end"l>>>>tr<"tableBottom"<"row align-items-center"<"col-sm-6"<"tableInfo"i>><"col-sm-6"<"tablePagi"p>>>><"clear">',
 		columns: [
-            {"data": "name", "name": "name"},
-            {"data": "email", "name": "email"},
-            {"data": "phone", "name": "phone"},
+            {"data": "teacher_name", "name": "users.teacher_name"},
+            {"data": "date", "name": "date"},
+            {"data": "start_time", "name": "start_time"},
+            {"data": "end_time", "name": "end_time"},
+            {"data": "status", "name": "status"},
             {"data": "action", searchable: false, responsivePriority:2},
         ],
       });

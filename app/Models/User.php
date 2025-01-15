@@ -49,4 +49,8 @@ class User extends Authenticatable
     public function applicantInfo(){
         return $this->hasOne(ApplicantInfo::class, 'student_id');
     }
+
+    public function teacher_apply_info(){
+        return $this->hasMany(TeacherApplyInfo::class, 'teacher_id');
+    }
 }

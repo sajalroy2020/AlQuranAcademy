@@ -1,0 +1,122 @@
+<form class="ajax-request reset" action="{{route('admin.teacher.store')}}" method="POST" data-handler="commonResponse">
+    @csrf
+
+    <input type="hidden" name="id" value="{{$teacher->id}}">
+
+    <div class="modal-body">
+        <div class="d-flex justify-content-between align-items-center pb-30">
+            <h5>{{__('Edit Teacher')}}</h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+        </div>
+        <div class="row">
+            <div class="col-12">
+                <div class="primary-form-group mt-2 pt-2">
+                    <div class="primary-form-group-wrap">
+                      <label for="currentPassword" class="form-label">{{ __('Full Name') }} <span class="text-danger">*</span></label>
+                      <input type="text" class="form-control" name="name" value="{{$teacher->name}}">
+                    </div>
+                </div>
+            </div>
+            <div class="col-12">
+                <div class="primary-form-group mt-2 pt-2">
+                    <div class="primary-form-group-wrap">
+                      <label for="currentPassword" class="form-label">{{ __('Email') }} <span class="text-danger">*</span></label>
+                      <input type="email" class="form-control" name="email" value="{{$teacher->email}}">
+                    </div>
+                </div>
+            </div>
+            <div class="col-12">
+                <div class="primary-form-group mt-2 pt-2">
+                    <div class="primary-form-group-wrap">
+                      <label for="currentPassword" class="form-label">{{ __('Phone') }} <span class="text-danger">*</span></label>
+                      <input type="number" class="form-control" name="phone" value="{{$teacher->phone}}">
+                    </div>
+                </div>
+            </div>
+            <div class="col-12">
+                <div class="primary-form-group my-2 pt-2">
+                    <div class="primary-form-group-wrap">
+                      <label for="BatchName" class="form-label">{{ __('Gender Select') }} <span class="text-danger">*</span></label>
+                      <select class="form-control" id="BatchName" name="gender">
+                        <option {{$teacher->gender == GENDER_MALE ? 'selected' : ''}} value="{{GENDER_MALE}}">{{ __('Male') }}</option>
+                        <option {{$teacher->gender == GENDER_FEMALE ? 'selected' : ''}} value="{{GENDER_FEMALE}}">{{ __('Fimale') }}</option>
+                        <option {{$teacher->gender == GENDER_OTHERS ? 'selected' : ''}} value="{{GENDER_OTHERS}}">{{ __('Other') }}</option>
+                      </select>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12">
+                <div class="primary-form-group mt-2 pt-2">
+                    <div class="primary-form-group-wrap">
+                      <label for="currentPassword" class="form-label">{{ __('Date Of Birth') }} <span class="text-danger">*</span></label>
+                      <input type="date" class="form-control" name="dob" value="{{$teacher->dob}}">
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 pt-3">
+                <label for="BatchName" class="form-label">{{ __('Course Select') }} <span class="text-danger">*</span></label>
+                <select class="form-select form-control" id="multiple-select-clear-field" data-placeholder="Select Teacher Course" multiple name="course_id[]">
+                  @foreach ($courseList as $data)
+                      <option value="{{ $data->id }}" 
+                          @if ($teacher && $teacher->teacher_apply_info && $teacher->teacher_apply_info->contains('course_id', $data->id))
+                              selected
+                          @endif
+                      >
+                          {{ $data->subject_name }}
+                      </option>
+                  @endforeach
+              </select>
+                <div class="course_id"></div>
+            </div>
+            <div class="col-12">
+                <div class="primary-form-group my-2 pt-2">
+                    <div class="primary-form-group-wrap">
+                      <label for="BatchName" class="form-label">{{ __('Country Select') }} <span class="text-danger">*</span></label>
+                      <select class="form-control getCountryState" id="BatchName" name="country_id">
+                        <option value="">{{__("Select Country")}}</option>
+                        @foreach ($countryList as $data)
+                            <option {{$teacher->country_id == $data->id ? 'selected' : ''}} value="{{$data->id}}">{{$data->name}}</option>
+                        @endforeach
+                      </select>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12">
+                <div class="primary-form-group my-2 pt-2">
+                    <div class="primary-form-group-wrap">
+                      <label for="BatchName" class="form-label">{{ __('State Select') }} <span class="text-danger">*</span></label>
+                      <select class="form-control addState" id="BatchName" name="state_id">
+                        <option value="">{{__("Select State")}}</option>
+                        @foreach ($state as $data)
+                            <option {{$teacher->state_id == $data->id ? 'selected' : ''}} value="{{$data->id}}">{{$data->name}}</option>
+                        @endforeach
+                      </select>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12">
+                <div class="primary-form-group mt-2 pt-2">
+                    <div class="primary-form-group-wrap">
+                      <label for="currentPassword" class="form-label">{{ __('Password') }} <span class="text-danger">*</span></label>
+                      <input type="password" class="form-control" name="password">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class=" d-flex justify-content-center">
+        <button type="submit" class="btn btn-primary w-25">{{ __('Update') }}</button>
+    </div>
+</form>
+
+<script>
+  $(document).ready(function () {
+       $( '#multiple-select-clear-field' ).select2( {
+           theme: "bootstrap-5",
+           width: $( this ).data( 'width' ) ? $( this ).data( 'width' ) : $( this ).hasClass( 'w-100' ) ? '100%' : 'style',
+           placeholder: $( this ).data( 'placeholder' ),
+           closeOnSelect: false,
+           allowClear: true,
+       } );
+   });
+</script>

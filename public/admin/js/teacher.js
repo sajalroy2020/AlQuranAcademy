@@ -2,13 +2,15 @@
     "use strict";
 
     // multiple-select js 
-    $( '#multiple-select-clear-field' ).select2( {
-        theme: "bootstrap-5",
-        width: $( this ).data( 'width' ) ? $( this ).data( 'width' ) : $( this ).hasClass( 'w-100' ) ? '100%' : 'style',
-        placeholder: $( this ).data( 'placeholder' ),
-        closeOnSelect: false,
-        allowClear: true,
-    } );
+    $(document).ready(function () {
+        $( '.multiple-select-clear-field' ).select2( {
+            theme: "bootstrap-5",
+            width: $( this ).data( 'width' ) ? $( this ).data( 'width' ) : $( this ).hasClass( 'w-100' ) ? '100%' : 'style',
+            placeholder: $( this ).data( 'placeholder' ),
+            closeOnSelect: false,
+            allowClear: true,
+        } );
+    });
 
     // get country wise state
     $(document).ready(function () {
@@ -21,13 +23,13 @@
     }
 
 
-    $("#studentDataTable").DataTable({
+    $("#teacherDataTable").DataTable({
         pageLength: 10,
         ordering: false,
         serverSide: true,
         processing: true,
         searching: true,
-        ajax: $('#student-list-route').val(),
+        ajax: $('#teacher-list-route').val(),
         language: {
 			paginate: {
 				previous: "<i class='fa-solid fa-angles-left'></i>",
