@@ -15,8 +15,10 @@
             </div>
             <div class="bg-white rounded p-3">
                 <!-- class add form -->
-                <form class="ajax-request reset" action="{{route('admin.class-schedule.store')}}" method="POST" data-handler="commonResponse">
+                <form class="ajax-request reset" action="{{route('admin.class-booking.store')}}" method="POST" data-handler="responseWithPageLoad">
                     @csrf
+                    <input type="hidden" id="class_slot_id" value="" name="class_schedule_id" >
+
                     <div class="row">
                         <div class="col-md-4 col-12">
                             <div class="primary-form-group my-2 pt-2">
@@ -58,8 +60,9 @@
                                 </div>
                             </div>
                         </div>
-                        
                     </div>
+                    <div class="row showClassSlot justify-content-center"></div>
+
                     <div class="d-flex justify-content-center pt-4">
                         <button type="submit" class="btn btn-primary w-25">{{ __('Booked Class') }}</button>
                     </div>

@@ -339,7 +339,6 @@
         return output;
     }
 
-
     window.responseWithPageLoad = function (response) {
         $('.error-message').remove();
         $('.is-invalid').removeClass('is-invalid');

@@ -50,6 +50,10 @@ class User extends Authenticatable
         return $this->hasMany(ApplicantInfo::class, 'student_id');
     }
 
+    public function Class_schedule(){
+        return $this->hasMany(ClassSchedule::class, 'teacher_id');
+    }
+
     public function teacher_apply_info(){
         return $this->hasMany(TeacherApplyInfo::class, 'teacher_id');
     }

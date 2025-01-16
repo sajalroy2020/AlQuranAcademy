@@ -7,12 +7,13 @@ use App\Models\User;
 use App\Models\State;
 use App\Models\Course;
 use App\Models\Country;
+use App\Models\ActiveCheck;
 use Illuminate\Http\Request;
 use App\Models\TeacherApplyInfo;
 use App\Traits\JsonResponseTrait;
 use Illuminate\Support\Facades\DB;
-use App\Http\Requests\TeacherRequest;
 use Illuminate\Support\Facades\Log;
+use App\Http\Requests\TeacherRequest;
 
 class TeacherController extends Controller
 {
@@ -24,6 +25,13 @@ class TeacherController extends Controller
 
             return datatables($teacher)
                 ->addIndexColumn()
+                ->addColumn('image', function ($getData) {
+                    return "
+                        <div class='profile-image'>
+                            <img src='" . asset('dashboard/assets/img/user.png') . "' alt='image' />
+                            <span class='active-status'></span>
+                        </div>";
+                })
                 ->addColumn('status', function ($state) {
                     return getStatusHtml($state->status);
                 })
@@ -37,7 +45,7 @@ class TeacherController extends Controller
                                 </button>
                         </div>';
                 })
-                ->rawColumns(['action'])
+                ->rawColumns(['image', 'action'])
                 ->make(true);
         }
 
@@ -80,11 +88,17 @@ class TeacherController extends Controller
 
                 foreach ($request->course_id as $key => $value) {
                     $teacherInfo = new TeacherApplyInfo();
-                    
                     $teacherInfo->teacher_id = $teacher->id;
                     $teacherInfo->course_id = $value;
                     $teacherInfo->save();
                 }
+                
+            }
+
+            if (!$id) {
+                $activeCheck = new ActiveCheck();
+                $activeCheck->teacher_id = $teacher->id;
+                $activeCheck->save();
             }
 
             DB::commit();
@@ -115,6 +129,7 @@ class TeacherController extends Controller
     public function delete($id){
         try {
             $student = User::find($id);
+            ActiveCheck::where('teacher_id', $id)->delete();
             TeacherApplyInfo::where('teacher_id', $id)->delete();
             $student->delete();
             return $this->successResponse([], __(MSG_DELETED_SUCCESSFULLY));

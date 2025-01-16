@@ -19,6 +19,7 @@
                 <table class="table zTable" id="teacherDataTable">
                     <thead>
                         <tr>
+                            <th scope="col"><div>{{ __('Image') }}</div></th>
                             <th scope="col"><div>{{ __('Name') }}</div></th>
                             <th scope="col"><div>{{ __('Email') }}</div></th>
                             <th scope="col"><div>{{ __('Phone') }}</div></th>

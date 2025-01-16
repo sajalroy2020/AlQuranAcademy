@@ -524,3 +524,30 @@
   color: var(--blue);
   background-color: var(--positive-blue);
 }
+
+.profile-image {
+  height: 30px;
+  width: 30px;
+  border-radius: 50%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  position: relative;
+}
+.profile-image img {
+  height: 100%;
+  width: 100%;
+  object-fit: cover; 
+  border-radius: 50%;
+}
+.active-status {
+  position: absolute;
+  top: -7px;
+  right: -4px;
+  height: 15px;
+  width: 15px;
+  background-color: #4caf50;
+  border: 2px solid white;
+  border-radius: 50%;
+  box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+}

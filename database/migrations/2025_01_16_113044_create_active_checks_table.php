@@ -11,11 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('class_bookings', function (Blueprint $table) {
+        Schema::create('active_checks', function (Blueprint $table) {
             $table->id();
-            $table->bigInteger('student_id')->nullable();
-            $table->bigInteger('class_schedule_id')->nullable();
-            $table->integer('status')->default(STATUS_ACTIVE);
+            $table->bigInteger('teacher_id')->nullable();
+            $table->string('message')->nullable();
+            $table->integer('is_active')->default(DEACTIVATE);
             $table->timestamps();
         });
     }
@@ -25,6 +25,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('class_bookings');
+        Schema::dropIfExists('active_checks');
     }
 };
