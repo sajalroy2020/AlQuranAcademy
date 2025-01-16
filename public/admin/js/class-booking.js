@@ -42,6 +42,7 @@
         });
         function dataResponse(response) {
             $(".addCourse").html(response.responseText);
+            $(".showClassSlot").html('');    
         }
 
         // get date
