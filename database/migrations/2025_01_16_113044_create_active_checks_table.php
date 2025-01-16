@@ -16,6 +16,7 @@ return new class extends Migration
             $table->bigInteger('teacher_id')->nullable();
             $table->string('message')->nullable();
             $table->integer('is_active')->default(DEACTIVATE);
+            $table->integer('notify_count')->nullable(0);
             $table->timestamps();
         });
     }

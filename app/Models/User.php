@@ -46,6 +46,10 @@ class User extends Authenticatable
         ];
     }
 
+    public function check_active(){
+        return $this->hasOne(ActiveCheck::class, 'teacher_id');
+    }
+
     public function applicant_info(){
         return $this->hasMany(ApplicantInfo::class, 'student_id');
     }

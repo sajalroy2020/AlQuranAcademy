@@ -23,9 +23,9 @@ class ClassScheduleController extends Controller
             $schedule = ClassSchedule::query();
             return datatables($schedule)
                 ->addIndexColumn()
-                ->addColumn('status', function ($schedule) {
-                    return getStatusHtml($schedule->status);
-                })
+                // ->addColumn('status', function ($schedule) {
+                //     return getStatusHtml($schedule->status);
+                // })
                 ->addColumn('teacher_name', function ($state) {
                     return $state->teacher_list->name;
                 })

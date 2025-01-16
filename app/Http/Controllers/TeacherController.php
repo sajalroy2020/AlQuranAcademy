@@ -3,12 +3,14 @@
 namespace App\Http\Controllers;
 
 use Exception;
+use Carbon\Carbon;
 use App\Models\User;
 use App\Models\State;
 use App\Models\Course;
 use App\Models\Country;
 use App\Models\ActiveCheck;
 use Illuminate\Http\Request;
+use App\Models\ClassSchedule;
 use App\Models\TeacherApplyInfo;
 use App\Traits\JsonResponseTrait;
 use Illuminate\Support\Facades\DB;
@@ -20,21 +22,47 @@ class TeacherController extends Controller
     use JsonResponseTrait;
 
     public function all(Request $request){
+
+        $class_schedule = ClassSchedule::where('date', Carbon::today())->get();
+        
+        foreach ($class_schedule as $key => $value) {
+            $check_active = ActiveCheck::where('teacher_id', $value->teacher_id)->first();
+            
+            if ($check_active) {
+                if ($check_active->notify_count == 0) {
+                    $check_active->notify_count = 1;
+                } elseif ($check_active->notify_count == 1) {
+                    $check_active->notify_count = 2;
+                } elseif ($check_active->notify_count == 2) {
+                    $check_active->notify_count = 0;
+                    $check_active->is_active = DEACTIVATE;
+                }
+                $check_active->save();
+            }
+        }
+
         if ($request->ajax()) {
-            $teacher = User::with('teacher_apply_info')->where('role', USER_ROLE_TEACHER);
+            $teacher = User::with('teacher_apply_info', 'check_active')->where('role', USER_ROLE_TEACHER);
 
             return datatables($teacher)
                 ->addIndexColumn()
                 ->addColumn('image', function ($getData) {
-                    return "
-                        <div class='profile-image'>
-                            <img src='" . asset('dashboard/assets/img/user.png') . "' alt='image' />
-                            <span class='active-status'></span>
-                        </div>";
+                    if ($getData->check_active->is_active == ACTIVE) {
+                        return "<div class='profile-image'>
+                                    <img src='" . asset('dashboard/assets/img/user.png') . "' alt='image' />
+                                    <span class='active-status'></span>
+                                </div>";
+                    }else{
+                        return "<div class='profile-image'>
+                                    <img src='" . asset('dashboard/assets/img/user.png') . "' alt='image' />
+                                    <span class='active-status bg-danger'></span>
+                                </div>";
+                    }
+                    
                 })
-                ->addColumn('status', function ($state) {
-                    return getStatusHtml($state->status);
-                })
+                // ->addColumn('status', function ($state) {
+                //     return getStatusHtml($state->status);
+                // })
                 ->addColumn('action', function ($data){
                     return '<div class="d-flex align-items-center g-10 justify-content-center">
                                 <button onclick="editCommonModal(\'' . route('admin.teacher.edit', $data->id) . '\'' . ', \'#editModal\')" class="border-0 bg-transparent" data-bs-toggle="modal" title="Edit">
@@ -98,6 +126,7 @@ class TeacherController extends Controller
             if (!$id) {
                 $activeCheck = new ActiveCheck();
                 $activeCheck->teacher_id = $teacher->id;
+                $activeCheck->notify_count = 0;
                 $activeCheck->save();
             }
 

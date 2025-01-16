@@ -19,9 +19,9 @@ class CountryController extends Controller
             $country = Country::query();
             return datatables($country)
                 ->addIndexColumn()
-                ->addColumn('status', function ($country) {
-                    return getStatusHtml($country->status);
-                })
+                // ->addColumn('status', function ($country) {
+                //     return getStatusHtml($country->status);
+                // })
                 ->addColumn('action', function ($data){
                     return '<div class="d-flex align-items-center g-10 justify-content-center">
                                 <button onclick="editCommonModal(\'' . route('admin.country.edit', $data->id) . '\'' . ', \'#editModal\')" class="border-0 bg-transparent" data-bs-toggle="modal" title="Edit">

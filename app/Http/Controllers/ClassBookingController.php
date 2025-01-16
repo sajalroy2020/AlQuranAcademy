@@ -21,9 +21,9 @@ class ClassBookingController extends Controller
 
             return datatables($schedule)
                 ->addIndexColumn()
-                ->addColumn('status', function ($schedule) {
-                    return getStatusHtml($schedule->status);
-                })
+                // ->addColumn('status', function ($schedule) {
+                //     return getStatusHtml($schedule->status);
+                // })
                 ->addColumn('student_name', function ($schedule) {
                     return $schedule->student->name;
                 })
