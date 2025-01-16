@@ -15,4 +15,9 @@ class ClassSchedule extends Model
         return $this->belongsTo(User::class, 'teacher_id');
     }
 
+    public function bookings()
+    {
+        return $this->hasMany(ClassBooking::class, 'class_schedule_id', 'id');
+    }
+
 }

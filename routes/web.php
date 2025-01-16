@@ -7,6 +7,7 @@ use App\Http\Controllers\StudentController;
 use App\Http\Controllers\TeacherController;
 use App\Http\Controllers\CountryController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\ClassBookingController;
 use App\Http\Controllers\ClassScheduleController;
 
 Route::get('/', function () {
@@ -18,9 +19,9 @@ Auth::routes();
 Route::middleware('auth')->group(function () {
     Route::get('home', [DashboardController::class, 'index'])->name('dashboard');
 
-    // admin route list
-    Route::group(['prefix' => 'admin', 'as' => 'admin.'], function () {
 
+    // admin all route list
+    Route::group(['prefix' => 'admin', 'as' => 'admin.'], function () {
         // teacher route
         Route::group(['prefix' => 'teacher', 'as' => 'teacher.'], function () {
             Route::get('all', [TeacherController::class, 'all'])->name('all');
@@ -71,6 +72,21 @@ Route::middleware('auth')->group(function () {
             Route::post('delete/{id}', [ClassScheduleController::class, 'delete'])->name('delete');
             Route::get('get-filter-course', [ClassScheduleController::class, 'getFilterCourse'])->name('get-filter-course');
         });
+
+        // student class booking route
+        Route::group(['prefix' => 'class-booking', 'as' => 'class-booking.'], function () {
+            Route::get('list', [ClassBookingController::class, 'list'])->name('list');
+            Route::get('add', [ClassBookingController::class, 'add'])->name('add');
+            Route::get('get-filter-course', [ClassBookingController::class, 'getFilterCourse'])->name('get-filter-course');
+            Route::get('get-teacher-filter', [ClassBookingController::class, 'getTeacherFilter'])->name('get-teacher-filter');
+            Route::get('get-teacher-class-list', [ClassBookingController::class, 'getTeacherClassList'])->name('get-teacher-class-list');
+
+
+            Route::post('store', [ClassBookingController::class, 'store'])->name('store');
+            Route::get('edit/{id}', [ClassBookingController::class, 'edit'])->name('edit');
+            Route::post('delete/{id}', [ClassBookingController::class, 'delete'])->name('delete');
+        });
+
     });
 
 

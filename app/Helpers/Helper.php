@@ -1026,9 +1026,9 @@ if (!function_exists('getStatusHtml')) {
     {
         $html = '';
         if ($status == STATUS_ACTIVE) {
-            $html = '<p class="zBadge zBadge-active">Active</p>';
+            $html = '<p class="sBadge sBadge-active">Active</p>';
         } else {
-            $html = '<p class="zBadge zBadge-deactivate">Deactivate</p>';
+            $html = '<p class="sBadge sBadge-deactivate">Deactivate</p>';
         }
         return $html;
     }

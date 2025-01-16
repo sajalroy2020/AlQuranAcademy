@@ -13,21 +13,22 @@
                 <h5>{{$pageTitle}}</h5>
                 <button type="submit" id="add-news" class="btn btn-primary mb-0" data-bs-toggle="modal" data-bs-target="#add-modal"><i class="fa fa-plus"></i> {{ __('Add New') }}</button>
             </div>
-        <div class="bg-white rounded p-3">
-            <!-- Table -->
-            <div class="table-responsive zTable-responsive">
-                <table class="table zTable" id="studentDataTable">
-                    <thead>
-                        <tr>
-                            <th scope="col"><div>{{ __('Name') }}</div></th>
-                            <th scope="col"><div>{{ __('Email') }}</div></th>
-                            <th scope="col"><div>{{ __('Phone') }}</div></th>
-                            <th class="w-110 text-center" scope="col"><div>{{ __('Action') }}</div></th>
-                        </tr>
-                    </thead>
-                </table>
+            <div class="bg-white rounded p-3">
+                <!-- Table -->
+                <div class="table-responsive zTable-responsive">
+                    <table class="table zTable" id="studentDataTable">
+                        <thead>
+                            <tr>
+                                <th scope="col"><div>{{ __('Name') }}</div></th>
+                                <th scope="col"><div>{{ __('Email') }}</div></th>
+                                <th scope="col"><div>{{ __('Phone') }}</div></th>
+                                <th scope="col"><div>{{ __('Status') }}</div></th>
+                                <th class="w-110 text-center" scope="col"><div>{{ __('Action') }}</div></th>
+                            </tr>
+                        </thead>
+                    </table>
+                </div>
             </div>
-        </div>
         </div>
     </div>
 </div>
@@ -98,19 +99,6 @@
                             </select>
                             <div class="course_id"></div>
                         </div>
-                        <!-- <div class="col-12">
-                            <div class="primary-form-group my-2 pt-2">
-                                <div class="primary-form-group-wrap">
-                                  <label for="BatchName" class="form-label">{{ __('Course Select') }} <span class="text-danger">*</span></label>
-                                  <select class="form-control" id="BatchName" name="course_id">
-                                    <option value="">{{__("Select Course")}}</option>
-                                    @foreach ($courseList as $data)
-                                        <option value="{{$data->id}}">{{$data->subject_name}}</option>
-                                    @endforeach
-                                  </select>
-                                </div>
-                            </div>
-                        </div> -->
                         <div class="col-12">
                             <div class="primary-form-group my-2 pt-2">
                                 <div class="primary-form-group-wrap">

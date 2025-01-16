@@ -23,15 +23,14 @@ class ClassScheduleController extends Controller
             $schedule = ClassSchedule::query();
             return datatables($schedule)
                 ->addIndexColumn()
-
-                // ->addColumn('status', function ($schedule) {
-                //     return getStatusHtml($schedule->status);
-                // })
+                ->addColumn('status', function ($schedule) {
+                    return getStatusHtml($schedule->status);
+                })
                 ->addColumn('teacher_name', function ($state) {
                     return $state->teacher_list->name;
                 })
                 ->addColumn('date', function ($state) {
-                    return $state->date;
+                    return $state->date ? \Carbon\Carbon::parse($state->start_time)->format('d F Y') : null;
                 })
                 ->addColumn('start_time', function ($state) {
                     return $state->start_time ? \Carbon\Carbon::parse($state->start_time)->format('h:i A') : null;

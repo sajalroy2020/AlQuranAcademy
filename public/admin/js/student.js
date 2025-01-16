@@ -41,6 +41,7 @@
             {"data": "name", "name": "name"},
             {"data": "email", "name": "email"},
             {"data": "phone", "name": "phone"},
+            {"data": "status", "name": "status", searchable: false},
             {"data": "action", searchable: false, responsivePriority:2},
         ],
       });

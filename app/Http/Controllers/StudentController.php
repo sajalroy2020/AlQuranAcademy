@@ -24,6 +24,9 @@ class StudentController extends Controller
 
             return datatables($student)
                 ->addIndexColumn()
+                ->addColumn('status', function ($state) {
+                    return getStatusHtml($state->status);
+                })
                 ->addColumn('action', function ($data){
                     return '<div class="d-flex align-items-center g-10 justify-content-center">
                                 <button onclick="editCommonModal(\'' . route('admin.student.edit', $data->id) . '\'' . ', \'#editModal\')" class="border-0 bg-transparent" data-bs-toggle="modal" title="Edit">
@@ -34,7 +37,7 @@ class StudentController extends Controller
                                 </button>
                         </div>';
                 })
-                ->rawColumns(['action'])
+                ->rawColumns(['status', 'action'])
                 ->make(true);
         }
 
