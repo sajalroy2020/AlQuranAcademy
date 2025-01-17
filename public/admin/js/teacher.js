@@ -58,16 +58,17 @@
     //     });
     // }
 
-
-    function teacherActiveCheck() {
-        commonAjaxRequest('GET', $('#teacher-list-route').val(), activeDataResponse, activeDataResponse, {});
-    }
-    
-    // Run `teacherActiveCheck` every 3 minutes
-    setTimeout(() => {
-        teacherActiveCheck(); 
-        setInterval(teacherActiveCheck, 180000);
-    }, 180000);
+    $(document).ready(function () {
+        function teacherActiveCheck() {
+            commonAjaxRequest('GET', $('#teacher-list-route').val(), activeDataResponse, activeDataResponse, {});
+        }
+        
+        // Run `teacherActiveCheck` every 3 minutes
+        setTimeout(() => {
+            teacherActiveCheck(); 
+            setInterval(teacherActiveCheck, 180000);
+        }, 180000);
+    });
     
     function activeDataResponse(response) {
         if ($.fn.DataTable.isDataTable("#teacherDataTable")) {

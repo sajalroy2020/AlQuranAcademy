@@ -15,6 +15,7 @@ use App\Models\TeacherApplyInfo;
 use App\Traits\JsonResponseTrait;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
 use App\Http\Requests\TeacherRequest;
 
 class TeacherController extends Controller
@@ -34,6 +35,8 @@ class TeacherController extends Controller
                 } elseif ($check_active->notify_count == 1) {
                     $check_active->notify_count = 2;
                 } elseif ($check_active->notify_count == 2) {
+                    $check_active->notify_count = 3;
+                } elseif ($check_active->notify_count == 3) {
                     $check_active->notify_count = 0;
                     $check_active->is_active = DEACTIVATE;
                 }
@@ -165,6 +168,19 @@ class TeacherController extends Controller
         } catch (Exception $e) {
             return $this->errorResponse([], __(MSG_SOMETHING_WENT_WRONG));
         }
+    }
+
+    public function activeRoute(){
+        $userId = Auth::id();
+        $activeStatus = ActiveCheck::where('teacher_id', $userId)->first();
+
+        if ($activeStatus) {
+            return response()->json([
+                'status' => 'success',
+                'data' => $activeStatus,
+            ]);
+        }
+    
     }
 
 }

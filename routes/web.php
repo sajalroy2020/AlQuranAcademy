@@ -87,6 +87,11 @@ Route::middleware('auth')->group(function () {
 
     });
 
+    // teachers all route list
+    Route::group(['prefix' => 'teacher', 'as' => 'teacher.'], function () {
+        Route::get('active-route', [TeacherController::class, 'activeRoute'])->name('active-route');
+    });
+
 
 });
 

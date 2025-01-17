@@ -9,9 +9,9 @@
         <div class="row justify-content-center align-items-center min-vh-100">
             <div class="col-md-8">
                 <div class="card">
-                    <div class="card-header">{{ __('Login') }}</div>
+                    <div class="card-header bg-light">{{ __('Login') }}</div>
 
-                    <div class="card-body">
+                    <div class="card-body bg-light">
                         <form method="POST" action="{{ route('login') }}">
                             @csrf
 
