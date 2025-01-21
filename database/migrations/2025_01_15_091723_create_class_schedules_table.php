@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->bigInteger('teacher_id')->nullable();
             $table->bigInteger('course_id')->nullable();
-            $table->date('date')->nullable();
+            $table->enum('day', ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'])->nullable();
             $table->time('start_time')->nullable();
             $table->time('end_time')->nullable();
             $table->integer('booking_status')->default(CLASS_AVAILABLE);

@@ -24,7 +24,8 @@ class TeacherController extends Controller
 
     public function all(Request $request){
 
-        $class_schedule = ClassSchedule::where('date', Carbon::today())->get();
+        $today = Carbon::now()->format('l');
+        $class_schedule = ClassSchedule::where('day', $today)->where('status', ACTIVE)->get();
         
         foreach ($class_schedule as $key => $value) {
             $check_active = ActiveCheck::where('teacher_id', $value->teacher_id)->first();

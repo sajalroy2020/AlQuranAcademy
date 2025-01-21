@@ -33,8 +33,8 @@ class ClassBookingController extends Controller
                 ->addColumn('subject', function ($schedule) {
                     return $schedule->classSchedule->course_list->subject_name;
                 })
-                ->addColumn('date', function ($schedule) {
-                    return $schedule->classSchedule->date ? \Carbon\Carbon::parse($schedule->classSchedule->date)->format('d F Y') : null;
+                ->addColumn('day', function ($schedule) {
+                    return $schedule->classSchedule->day;
                 })
                 ->addColumn('start_time', function ($schedule) {
                     return $schedule->classSchedule->start_time ? \Carbon\Carbon::parse($schedule->classSchedule->start_time)->format('h:i A') : null;
@@ -49,7 +49,7 @@ class ClassBookingController extends Controller
                                 </button>
                         </div>';
                 })
-                ->rawColumns(['status', 'student_name', 'teacher_name', 'subject', 'date', 'start_time', 'end_time',  'action'])
+                ->rawColumns(['status', 'student_name', 'teacher_name', 'subject', 'day', 'start_time', 'end_time',  'action'])
                 ->make(true);
         }
 
@@ -78,18 +78,18 @@ class ClassBookingController extends Controller
     }
 
     public function getTeacherFilter(Request $request){
-        $date = $request->input('date');
+        $day = $request->input('day');
         $courseId = $request->input('course_id');
 
-        if (!$date || !$courseId) {
+        if (!$day || !$courseId) {
             return response()->json(['error' => 'Invalid parameters'], 400);
         }
 
         $data['teachers'] = User::with('Class_schedule')
                             ->where('role', USER_ROLE_TEACHER)
-                            ->when($date, function ($query) use ($date) {
-                                $query->whereHas('Class_schedule', function ($q) use ($date) {
-                                    $q->where('date', $date);
+                            ->when($day, function ($query) use ($day) {
+                                $query->whereHas('Class_schedule', function ($q) use ($day) {
+                                    $q->where('day', $day);
                                 });
                             })
                             ->when($courseId, function ($query) use ($courseId) {
@@ -103,10 +103,10 @@ class ClassBookingController extends Controller
     }
 
     public function getTeacherClassList(Request $request){
-        $date = $request->input('date');
+        $day = $request->input('day');
         $teacherId = $request->input('teacher_id');
 
-        if (!$date || !$teacherId) {
+        if (!$day || !$teacherId) {
             return response()->json(['error' => 'Invalid parameters'], 400);
         }
 
@@ -116,7 +116,7 @@ class ClassBookingController extends Controller
                         'class_schedules.teacher_id',
                         'class_schedules.course_id',
                         'class_schedules.id',
-                        'class_schedules.date',
+                        'class_schedules.day',
                         'class_schedules.start_time',
                         'class_schedules.end_time',
                         DB::raw("CASE 
@@ -128,8 +128,8 @@ class ClassBookingController extends Controller
                     ->when($teacherId, function ($query) use ($teacherId) {
                         $query->where('class_schedules.teacher_id', $teacherId);
                     })
-                    ->when($date, function ($query) use ($date) {
-                        $query->where('class_schedules.date', $date);
+                    ->when($day, function ($query) use ($day) {
+                        $query->where('class_schedules.day', $day);
                     })->get();
 
         return view('admin.class-booking.class-slot', $data)->render();

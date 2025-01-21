@@ -22,7 +22,7 @@
                             <th scope="col"><div>{{ __('Student Name') }}</div></th>
                             <th scope="col"><div>{{ __('Teacher Name') }}</div></th>
                             <th scope="col"><div>{{ __('Subject') }}</div></th>
-                            <th scope="col"><div>{{ __('Date') }}</div></th>
+                            <th scope="col"><div>{{ __('Day') }}</div></th>
                             <th scope="col"><div>{{ __('Start Time') }}</div></th>
                             <th scope="col"><div>{{ __('End Time') }}</div></th>
                             <th scope="col"><div>{{ __('Status') }}</div></th>

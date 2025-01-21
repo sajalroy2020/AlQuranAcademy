@@ -22,7 +22,7 @@
             {"data": "student_name", "name": "users.student_name"},
             {"data": "teacher_name", "name": "users.teacher_name"},
             {"data": "subject", "name": "courses.subject"},
-            {"data": "date", "name": "class_schedules.date"},
+            {"data": "day", "name": "class_schedules.day"},
             {"data": "start_time", "name": "class_schedules.start_time"},
             {"data": "end_time", "name": "class_schedules.end_time"},
             {"data": "status", "name": "status"},
@@ -32,7 +32,7 @@
 
     $(document).ready(function () {
 
-        let getDate = '';
+        let getDay = '';
         let courseId = 0;
         let teacherId = 0;
 
@@ -47,16 +47,17 @@
 
         // get date
         $(document).on('change', '.filterTeachersDate', function() {
-            getDate = $(this).val();
-            if (getDate != '' && courseId != 0) {
-                commonAjaxRequest('GET', $('#get-filter-teacher').val(), teacherDataResponse, teacherDataResponse, { date: getDate, course_id: courseId });
+            getDay = $(this).val();
+            if (getDay != '' && courseId != 0) {
+                commonAjaxRequest('GET', $('#get-filter-teacher').val(), teacherDataResponse, teacherDataResponse, { day: getDay, course_id: courseId });
             }
+            $(".showClassSlot").html('');    
         });
         //get course wise teacher
         $(document).on('change', '#getFilterCourse', function() {
             courseId = $(this).val();
-            if (getDate != '' && courseId != 0) {
-                commonAjaxRequest('GET', $('#get-filter-teacher').val(), teacherDataResponse, teacherDataResponse,{ date: getDate, course_id: courseId });
+            if (getDay != '' && courseId != 0) {
+                commonAjaxRequest('GET', $('#get-filter-teacher').val(), teacherDataResponse, teacherDataResponse,{ day: getDay, course_id: courseId });
             }
         });
         function teacherDataResponse(response) {
@@ -66,8 +67,8 @@
          //get teacher class list
          $(document).on('change', '#getTeacherId', function() {
             teacherId = $(this).val();
-            if (getDate != '' && courseId != 0 && teacherId != 0) {
-                commonAjaxRequest('GET', $('#get-teacher-class-list').val(), teacherClassDataResponse, teacherClassDataResponse,{ date: getDate, teacher_id: teacherId });
+            if (getDay != '' && courseId != 0 && teacherId != 0) {
+                commonAjaxRequest('GET', $('#get-teacher-class-list').val(), teacherClassDataResponse, teacherClassDataResponse,{ day: getDay, teacher_id: teacherId });
             }
         });
         function teacherClassDataResponse(response) {

@@ -68,9 +68,12 @@ Route::middleware('auth')->group(function () {
         Route::group(['prefix' => 'class-schedule', 'as' => 'class-schedule.'], function () {
             Route::get('list', [ClassScheduleController::class, 'list'])->name('list');
             Route::post('store', [ClassScheduleController::class, 'store'])->name('store');
+            Route::post('update', [ClassScheduleController::class, 'update'])->name('update');
             Route::get('edit/{id}', [ClassScheduleController::class, 'edit'])->name('edit');
             Route::post('delete/{id}', [ClassScheduleController::class, 'delete'])->name('delete');
             Route::get('get-filter-course', [ClassScheduleController::class, 'getFilterCourse'])->name('get-filter-course');
+            Route::get('check', [ClassScheduleController::class, 'checkSchedule'])->name('check');
+            Route::get('filter-schedule', [ClassScheduleController::class, 'scheduleFilter'])->name('filter-schedule');
         });
 
         // student class booking route

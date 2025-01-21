@@ -4,19 +4,28 @@
   <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
 </div>
 <!--  -->
-<form class="ajax-request reset" action="{{route('admin.class-schedule.store')}}" method="POST" data-handler="commonResponse">
+<form class="ajax-request reset" action="{{route('admin.class-schedule.update')}}" method="POST" data-handler="commonResponse">
   @csrf
   <input type="hidden" name="id" value="{{$schedule->id}}">
 
     <div class="row mt-4">
       <div class="col-12">
         <div class="primary-form-group mt-2 pt-2">
-          <div class="primary-form-group-wrap">
-            <label class="form-label">{{ __('Date') }} <span class="text-danger">*</span></label>
-            <input type="date" class="form-control" name="date" value="{{$schedule->date}}">
-          </div>
+            <div class="primary-form-group-wrap">
+              <label class="form-label">{{ __('Select Day') }} <span class="text-danger">*</span></label>
+              <select class="form-control" name="day">
+                <option value="">{{__("Select Day")}}</option>
+                <option {{$schedule->day == 'Monday' ? 'selected' : ''}} value="Monday">{{__("Mon Day")}}</option>
+                <option {{$schedule->day == 'Tuesday' ? 'selected' : ''}} value="Tuesday">{{__("Tues Day")}}</option>
+                <option {{$schedule->day == 'Wednesday' ? 'selected' : ''}} value="Wednesday">{{__("Wednes Day")}}</option>
+                <option {{$schedule->day == 'Thursday' ? 'selected' : ''}} value="Thursday">{{__("Thurs Day")}}</option>
+                <option {{$schedule->day == 'Friday' ? 'selected' : ''}} value="Friday">{{__("Fri Day")}}</option>
+                <option {{$schedule->day == 'Saturday' ? 'selected' : ''}} value="Saturday">{{__("Satur Day")}}</option>
+                <option {{$schedule->day == 'Sunday' ? 'selected' : ''}} value="Sunday">{{__("Sun Day")}}</option>
+              </select>
+            </div>
         </div>
-      </div>
+    </div>
       <div class="col-12">
           <div class="primary-form-group my-2 pt-2">
               <div class="primary-form-group-wrap">
@@ -71,3 +80,7 @@
       <button type="submit" class="btn btn-primary w-25">{{ __('Update') }}</button>
   </div>
 </form>
+
+{{-- @push('script')
+    <script src="{{ asset('admin/js/class-schedule.js') }}"></script>
+@endpush --}}

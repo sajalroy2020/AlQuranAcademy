@@ -20,13 +20,31 @@ class ClassScheduleRequest extends FormRequest
      */
     public function rules()
     {
+        $id = isset($this->id)?$this->id:null;
+        
         $rules = [
-            "date" => ['bail','required'],
+            "day" => ['bail','required'],
             "teacher_id" => ['bail','required'],
             "course_id" => ['bail','required'],
-            "start_time" => ['bail','required'],
-            "end_time" => ['bail','required'],
+           
         ];
+        
+        if (!$id) {
+            $rules["start_time.*"] = ['bail', 'required'];
+            $rules["end_time.*"] = ['bail', 'required'];  
+        } else {
+            $rules["start_time"] = ['bail', 'required'];
+            $rules["end_time"] = ['bail', 'required'];  
+        }
+
         return $rules;
+    }
+
+    public function messages()
+    {
+        return [
+            'start_time.*.required' => __('This field is required'),
+            'end_time.*.required' => __('This field is required'),
+        ];
     }
 }

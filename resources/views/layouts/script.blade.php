@@ -10,7 +10,7 @@
 <script src="{{ asset('common/js/common_function.js')}}"></script>
 <script src="{{ asset('common/js/plugins.js')}}"></script>
 
-@if(auth()->user()->role == USER_ROLE_TEACHER)
+@if(auth()->user()?->role === USER_ROLE_TEACHER)
   <script src="{{ asset('common/js/teacher.js')}}"></script>
 @endif
 

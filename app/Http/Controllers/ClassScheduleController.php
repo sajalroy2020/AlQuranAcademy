@@ -6,6 +6,7 @@ use App\Http\Requests\ClassScheduleRequest;
 use App\Models\ClassSchedule;
 use App\Models\User;
 use App\Models\Course;
+use App\Models\Country;
 use App\Models\TeacherApplyInfo;
 use App\Traits\JsonResponseTrait;
 use Illuminate\Http\Request;
@@ -20,7 +21,8 @@ class ClassScheduleController extends Controller
 
     public function list(Request $request){
         if ($request->ajax()) {
-            $schedule = ClassSchedule::query();
+            $schedule = ClassSchedule::with('course_list');
+            
             return datatables($schedule)
                 ->addIndexColumn()
                 // ->addColumn('status', function ($schedule) {
@@ -29,14 +31,14 @@ class ClassScheduleController extends Controller
                 ->addColumn('teacher_name', function ($state) {
                     return $state->teacher_list->name;
                 })
-                ->addColumn('date', function ($state) {
-                    return $state->date ? \Carbon\Carbon::parse($state->start_time)->format('d F Y') : null;
+                ->addColumn('subject', function ($state) {
+                    return $state->course_list->subject_name;
                 })
-                ->addColumn('start_time', function ($state) {
-                    return $state->start_time ? \Carbon\Carbon::parse($state->start_time)->format('h:i A') : null;
+                ->addColumn('day', function ($state) {
+                    return $state->day;
                 })
-                ->addColumn('end_time', function ($state) {
-                    return $state->end_time ? \Carbon\Carbon::parse($state->end_time)->format('h:i A') : null;
+                ->addColumn('time', function ($state) {
+                    return ($state->start_time ? \Carbon\Carbon::parse($state->start_time)->format('h:i A') : null) . ' - ' . ($state->end_time ? \Carbon\Carbon::parse($state->end_time)->format('h:i A') : null);
                 })
                 ->addColumn('action', function ($data){
                     return '<div class="d-flex align-items-center g-10 justify-content-center">
@@ -48,7 +50,7 @@ class ClassScheduleController extends Controller
                                 </button>
                         </div>';
                 })
-                ->rawColumns(['teacher_name', 'date', 'start_time', 'end_time', 'status', 'action'])
+                ->rawColumns(['teacher_name', 'subject', 'day', 'time', 'status', 'action'])
                 ->make(true);
         }
         $data['teachers'] = User::where(['role' => USER_ROLE_TEACHER, 'status' => USER_STATUS_ACTIVE])->get();
@@ -72,6 +74,50 @@ class ClassScheduleController extends Controller
 
     public function store(ClassScheduleRequest $request)
     {
+        // return $request->all();
+
+        DB::beginTransaction();
+        try {
+            $msg = __(MSG_CREATED_SUCCESSFULLY);
+            $schedule = new ClassSchedule();
+
+            $checkSchedule = ClassSchedule::where('teacher_id', $request->teacher_id)->where('day', $request->day)->get();
+    
+            foreach ($request->start_time as $key => $startTime) {
+
+                if ($checkSchedule->isNotEmpty()) {
+                    foreach ($checkSchedule as $dataItem) {
+                        $existingStartTime = \Carbon\Carbon::parse($dataItem->start_time)->format('h:i A');
+                        $existingEndTime = \Carbon\Carbon::parse($dataItem->end_time)->format('h:i A');
+                        $requestedStartTime = \Carbon\Carbon::parse($startTime)->format('h:i A');
+    
+                        if ( $existingStartTime <= $requestedStartTime && $existingEndTime > $requestedStartTime ) {
+                            return $this->errorResponse([], __('Already booked for this time'));
+                        }
+                    }
+                }
+
+                $schedule = new ClassSchedule();
+                $schedule->teacher_id = $request->teacher_id;
+                $schedule->course_id = $request->course_id;
+                $schedule->day = $request->day;
+                $schedule->start_time = $startTime;
+                $schedule->end_time = $request->end_time[$key];
+                $schedule->save();
+            }
+
+            DB::commit();
+            return $this->successResponse([], $msg);
+
+        } catch (Exception $exception) {
+            DB::rollBack();
+            Log::info($exception->getMessage());
+            return $this->errorResponse([], __(MSG_SOMETHING_WENT_WRONG));
+        }
+    }
+
+    public function update(ClassScheduleRequest $request)
+    {
         DB::beginTransaction();
         try {
             $id = $request->get('id', 0);
@@ -79,13 +125,9 @@ class ClassScheduleController extends Controller
                 $id = $id;
                 $schedule = ClassSchedule::find($id);
                 $msg = __(MSG_UPDATED_SUCCESSFULLY);
-
-            } else {
-                $schedule = new ClassSchedule();
-                $msg = __(MSG_CREATED_SUCCESSFULLY);
             }
 
-            $checkSchedule = ClassSchedule::where('teacher_id', $request->teacher_id)->where('date', $request->date)->get();
+            $checkSchedule = ClassSchedule::where('teacher_id', $request->teacher_id)->where('day', $request->day)->get();
 
             if ($checkSchedule->isNotEmpty()) {
                 foreach ($checkSchedule as $dataItem) {
@@ -99,7 +141,7 @@ class ClassScheduleController extends Controller
                 }
             }
 
-            $schedule->date = $request->date;
+            $schedule->day = $request->day;
             $schedule->teacher_id = $request->teacher_id;
             $schedule->course_id = $request->course_id;
             $schedule->start_time = $request->start_time;
@@ -129,6 +171,56 @@ class ClassScheduleController extends Controller
     public function getFilterCourse(Request $request){
         $data['course'] = TeacherApplyInfo::where('teacher_id', $request->id)->with('course_list')->get();
         return view('admin.class-schedule.course-dropdown', $data)->render();
+    }
+
+    public function checkSchedule(Request $request){
+
+        $data['countryList'] = Country::where('status', STATUS_ACTIVE)->get();
+        $data['courseList'] = Course::where('status', STATUS_ACTIVE)->get();
+
+        $data['activeScheduleCheck'] = 'active';
+        $data['pageTitle'] = __('Check Class Schedule List');
+
+        return view('admin.class-schedule.check', $data);
+    }
+
+    public function scheduleFilter(Request $request){
+        $day = $request->input('day_list');
+
+        if (empty($day) || !is_array($day)) {
+            return response()->json(['error' => 'Invalid parameters'], 400);
+        }
+
+        $data['classes_list'] = User::where('role', USER_ROLE_TEACHER)
+        ->with(['Class_schedule' => function ($query) use ($day) {
+            $query->select(
+                'class_schedules.teacher_id',
+                'class_schedules.course_id',
+                'class_schedules.id',
+                'class_schedules.day',
+                'class_schedules.start_time',
+                'class_schedules.end_time',
+                'class_schedules.day',
+                DB::raw("CASE 
+                    WHEN class_schedules.booking_status = 2 THEN 'Not Available'
+                    WHEN class_schedules.booking_status = 1 AND class_bookings.class_schedule_id IS NULL THEN 'Available'
+                    ELSE 'Not Available'
+                END AS availability_status")
+            )
+            ->leftJoin('class_bookings', 'class_schedules.id', '=', 'class_bookings.class_schedule_id')
+            ->when($day, function ($query) use ($day) {
+                $query->whereIn('class_schedules.day', $day);
+            });
+        }])
+        ->select(
+            'users.id',          
+            'users.name'
+        )
+        ->get();
+
+        // return  $data['classes_list'];
+
+        return view('admin.class-schedule.class-slot', $data)->render();
     }
 
 }

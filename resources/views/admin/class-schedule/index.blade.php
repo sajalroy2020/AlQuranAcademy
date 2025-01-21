@@ -20,9 +20,9 @@
                     <thead>
                         <tr>
                             <th scope="col"><div>{{ __('Teacher Name') }}</div></th>
-                            <th scope="col"><div>{{ __('Date') }}</div></th>
-                            <th scope="col"><div>{{ __('Start Time') }}</div></th>
-                            <th scope="col"><div>{{ __('End Time') }}</div></th>
+                            <th scope="col"><div>{{ __('Subject') }}</div></th>
+                            <th scope="col"><div>{{ __('Day') }}</div></th>
+                            <th scope="col"><div>{{ __('Class Time') }}</div></th>
                             <th scope="col"><div>{{ __('Status') }}</div></th>
                             <th class="w-110 text-center" scope="col"><div>{{ __('Action') }}</div></th>
                         </tr>
@@ -50,8 +50,17 @@
                         <div class="col-12">
                             <div class="primary-form-group mt-2 pt-2">
                                 <div class="primary-form-group-wrap">
-                                  <label class="form-label">{{ __('Date') }} <span class="text-danger">*</span></label>
-                                  <input type="date" class="form-control" name="date">
+                                  <label class="form-label">{{ __('Select Day') }} <span class="text-danger">*</span></label>
+                                  <select class="form-control" name="day">
+                                    <option value="">{{__("Select Day")}}</option>
+                                    <option value="Monday">{{__("Mon Day")}}</option>
+                                    <option value="Tuesday">{{__("Tues Day")}}</option>
+                                    <option value="Wednesday">{{__("Wednes Day")}}</option>
+                                    <option value="Thursday">{{__("Thurs Day")}}</option>
+                                    <option value="Friday">{{__("Fri Day")}}</option>
+                                    <option value="Saturday">{{__("Satur Day")}}</option>
+                                    <option value="Sunday">{{__("Sun Day")}}</option>
+                                  </select>
                                 </div>
                             </div>
                         </div>
@@ -78,19 +87,31 @@
                                 </div>
                             </div>
                         </div>
-                        <div class="col-6">
-                            <div class="primary-form-group mt-2 pt-2">
-                                <div class="primary-form-group-wrap">
-                                  <label class="form-label">{{ __('Start Time') }} <span class="text-danger">*</span></label>
-                                  <input type="time" class="form-control" name="start_time">
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-6">
-                            <div class="primary-form-group mt-2 pt-2">
-                                <div class="primary-form-group-wrap">
-                                  <label class="form-label">{{ __('End Time') }} <span class="text-danger">*</span></label>
-                                  <input type="time" class="form-control" name="end_time">
+
+                        <div class="col-12">
+                            <div id="time-container">
+                                <div class="row align-items-end time-row">
+                                    <div class="col-5">
+                                        <div class="primary-form-group mt-2 pt-2">
+                                            <div class="primary-form-group-wrap">
+                                                <label class="form-label">{{ __('Start Time') }} <span class="text-danger">*</span></label>
+                                                <input type="time" class="form-control" name="start_time[]">
+                                            </div>
+                                            <div class="start_time"></div>
+                                        </div>
+                                    </div>
+                                    <div class="col-5">
+                                        <div class="primary-form-group mt-2 pt-2">
+                                            <div class="primary-form-group-wrap">
+                                                <label class="form-label">{{ __('End Time') }} <span class="text-danger">*</span></label>
+                                                <input type="time" class="form-control" name="end_time[]">
+                                            </div>
+                                            <div class="end_time"></div>
+                                        </div>
+                                    </div>
+                                    <div class="col-2">
+                                        <button type="button" id="btn-add-more" class="btn btn-icon-only bg-gradient-primary mb-0"> + </button>
+                                    </div>
                                 </div>
                             </div>
                         </div>

@@ -44,10 +44,25 @@
                             </div>
                         </div>
                         <div class="col-md-4 col-12">
-                            <div class="primary-form-group mt-2 pt-2">
+                            {{-- <div class="primary-form-group mt-2 pt-2">
                                 <div class="primary-form-group-wrap">
                                   <label class="form-label">{{ __('Date') }} <span class="text-danger">*</span></label>
                                   <input type="date" class="form-control filterTeachersDate" name="date">
+                                </div>
+                            </div> --}}
+                            <div class="primary-form-group mt-2 pt-2">
+                                <div class="primary-form-group-wrap">
+                                  <label class="form-label">{{ __('Select Day') }} <span class="text-danger">*</span></label>
+                                  <select class="form-control filterTeachersDate" name="day">
+                                    <option value="">{{__("Select Day")}}</option>
+                                    <option value="Monday">{{__("Mon Day")}}</option>
+                                    <option value="Tuesday">{{__("Tues Day")}}</option>
+                                    <option value="Wednesday">{{__("Wednes Day")}}</option>
+                                    <option value="Thursday">{{__("Thurs Day")}}</option>
+                                    <option value="Friday">{{__("Fri Day")}}</option>
+                                    <option value="Saturday">{{__("Satur Day")}}</option>
+                                    <option value="Sunday">{{__("Sun Day")}}</option>
+                                  </select>
                                 </div>
                             </div>
                         </div>
