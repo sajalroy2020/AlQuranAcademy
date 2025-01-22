@@ -1,127 +1,3 @@
-{{-- <form class="ajax-request reset" action="{{route('admin.teacher.store')}}" method="POST" data-handler="commonResponse">
-    @csrf
-
-    <input type="hidden" name="id" value="{{$teacher->id}}">
-
-    <div class="modal-body">
-        <div class="d-flex justify-content-between align-items-center pb-30">
-            <h5>{{__('Edit Teacher')}}</h5>
-            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
-        </div>
-        <div class="row">
-            <div class="col-12">
-                <div class="primary-form-group mt-2 pt-2">
-                    <div class="primary-form-group-wrap">
-                      <label for="currentPassword" class="form-label">{{ __('Full Name') }} <span class="text-danger">*</span></label>
-                      <input type="text" class="form-control" name="name" value="{{$teacher->name}}">
-                    </div>
-                </div>
-            </div>
-            <div class="col-12">
-                <div class="primary-form-group mt-2 pt-2">
-                    <div class="primary-form-group-wrap">
-                      <label for="currentPassword" class="form-label">{{ __('Email') }} <span class="text-danger">*</span></label>
-                      <input type="email" class="form-control" name="email" value="{{$teacher->email}}">
-                    </div>
-                </div>
-            </div>
-            <div class="col-12">
-                <div class="primary-form-group mt-2 pt-2">
-                    <div class="primary-form-group-wrap">
-                      <label for="currentPassword" class="form-label">{{ __('Phone') }} <span class="text-danger">*</span></label>
-                      <input type="number" class="form-control" name="phone" value="{{$teacher->phone}}">
-                    </div>
-                </div>
-            </div>
-            <div class="col-12">
-                <div class="primary-form-group my-2 pt-2">
-                    <div class="primary-form-group-wrap">
-                      <label for="BatchName" class="form-label">{{ __('Gender Select') }} <span class="text-danger">*</span></label>
-                      <select class="form-control" id="BatchName" name="gender">
-                        <option {{$teacher->gender == GENDER_MALE ? 'selected' : ''}} value="{{GENDER_MALE}}">{{ __('Male') }}</option>
-                        <option {{$teacher->gender == GENDER_FEMALE ? 'selected' : ''}} value="{{GENDER_FEMALE}}">{{ __('Fimale') }}</option>
-                        <option {{$teacher->gender == GENDER_OTHERS ? 'selected' : ''}} value="{{GENDER_OTHERS}}">{{ __('Other') }}</option>
-                      </select>
-                    </div>
-                </div>
-            </div>
-            <div class="col-12">
-                <div class="primary-form-group mt-2 pt-2">
-                    <div class="primary-form-group-wrap">
-                      <label for="currentPassword" class="form-label">{{ __('Date Of Birth') }} <span class="text-danger">*</span></label>
-                      <input type="date" class="form-control" name="dob" value="{{$teacher->dob}}">
-                    </div>
-                </div>
-            </div>
-            <div class="col-12 pt-3">
-                <label for="BatchName" class="form-label">{{ __('Course Select') }} <span class="text-danger">*</span></label>
-                <select class="form-select form-control" id="multiple-select-clear-field" data-placeholder="Select Teacher Course" multiple name="course_id[]">
-                  @foreach ($courseList as $data)
-                      <option value="{{ $data->id }}" 
-                          @if ($teacher && $teacher->teacher_apply_info && $teacher->teacher_apply_info->contains('course_id', $data->id))
-                              selected
-                          @endif
-                      >
-                          {{ $data->subject_name }}
-                      </option>
-                  @endforeach
-              </select>
-                <div class="course_id"></div>
-            </div>
-            <div class="col-12">
-                <div class="primary-form-group my-2 pt-2">
-                    <div class="primary-form-group-wrap">
-                      <label for="BatchName" class="form-label">{{ __('Country Select') }} <span class="text-danger">*</span></label>
-                      <select class="form-control getCountryState" id="BatchName" name="country_id">
-                        <option value="">{{__("Select Country")}}</option>
-                        @foreach ($countryList as $data)
-                            <option {{$teacher->country_id == $data->id ? 'selected' : ''}} value="{{$data->id}}">{{$data->name}}</option>
-                        @endforeach
-                      </select>
-                    </div>
-                </div>
-            </div>
-            <div class="col-12">
-                <div class="primary-form-group my-2 pt-2">
-                    <div class="primary-form-group-wrap">
-                      <label for="BatchName" class="form-label">{{ __('State Select') }} <span class="text-danger">*</span></label>
-                      <select class="form-control addState" id="BatchName" name="state_id">
-                        <option value="">{{__("Select State")}}</option>
-                        @foreach ($state as $data)
-                            <option {{$teacher->state_id == $data->id ? 'selected' : ''}} value="{{$data->id}}">{{$data->name}}</option>
-                        @endforeach
-                      </select>
-                    </div>
-                </div>
-            </div>
-            <div class="col-12">
-                <div class="primary-form-group mt-2 pt-2">
-                    <div class="primary-form-group-wrap">
-                      <label for="currentPassword" class="form-label">{{ __('Password') }} <span class="text-danger">*</span></label>
-                      <input type="password" class="form-control" name="password">
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <div class=" d-flex justify-content-center">
-        <button type="submit" class="btn btn-primary w-25">{{ __('Update') }}</button>
-    </div>
-</form> --}}
-
-{{-- <script>
-  $(document).ready(function () {
-       $( '#multiple-select-clear-field' ).select2( {
-           theme: "bootstrap-5",
-           width: $( this ).data( 'width' ) ? $( this ).data( 'width' ) : $( this ).hasClass( 'w-100' ) ? '100%' : 'style',
-           placeholder: $( this ).data( 'placeholder' ),
-           closeOnSelect: false,
-           allowClear: true,
-       } );
-   });
-</script> --}}
-
-
 @extends('layouts.app')
 
 @push('title')
@@ -141,16 +17,13 @@
                 <!-- class add form -->
                 <form class="ajax-request reset" action="{{route('admin.teacher.store')}}" method="POST" data-handler="commonResponse">
                     @csrf
-
-                    <input type="hidden" name="id" value="{{$teacher->id}}">
-
                     <div class="modal-body">
                         <div class="row">
                             <div class="col-12 col-md-6">
                                 <div class="primary-form-group">
                                     <div class="primary-form-group-wrap">
                                       <label class="form-label">{{ __('Full Name') }} <span class="text-danger">*</span></label>
-                                      <input type="text" class="form-control" name="name" value="{{$teacher->name}}" placeholder="{{ __('Full Name') }}">
+                                      <input type="text" class="form-control" name="name" placeholder="{{ __('Full Name') }}">
                                     </div>
                                 </div>
                             </div>
@@ -158,7 +31,7 @@
                                 <div class="primary-form-group mt-2 pt-2 mt-md-0 pt-md-0">
                                     <div class="primary-form-group-wrap">
                                       <label class="form-label">{{ __('Email') }} <span class="text-danger">*</span></label>
-                                      <input type="email" class="form-control" name="email" value="{{$teacher->email}}" placeholder="{{ __('Email') }}">
+                                      <input type="email" class="form-control" name="email" placeholder="{{__('Email') }}">
                                     </div>
                                 </div>
                             </div>
@@ -168,9 +41,9 @@
                                       <label for="BatchName" class="form-label">{{ __('Gender Select') }} <span class="text-danger">*</span></label>
                                       <select class="form-control" id="BatchName" name="gender">
                                         <option value="">{{__("Select Gender")}}</option>
-                                        <option {{($teacher->gender == GENDER_MALE) ? 'selected' : ''}} value="{{GENDER_MALE}}">{{ __('Male') }}</option>
-                                        <option {{($teacher->gender == GENDER_FEMALE) ? 'selected' : ''}} value="{{GENDER_FEMALE}}">{{ __('Fimale') }}</option>
-                                        <option {{($teacher->gender == GENDER_OTHERS) ? 'selected' : ''}} value="{{GENDER_OTHERS}}">{{ __('Other') }}</option>
+                                        <option value="{{GENDER_MALE}}">{{ __('Male') }}</option>
+                                        <option value="{{GENDER_FEMALE}}">{{ __('Fimale') }}</option>
+                                        <option value="{{GENDER_OTHERS}}">{{ __('Other') }}</option>
                                       </select>
                                     </div>
                                 </div>
@@ -179,7 +52,7 @@
                                 <div class="primary-form-group mt-2 pt-2">
                                     <div class="primary-form-group-wrap">
                                       <label class="form-label">{{ __('Father Name') }} <span class="text-danger">*</span></label>
-                                      <input type="text" class="form-control" name="father_name" value="{{$teacher->teacher_info->father_name}}" placeholder="{{__('Father Name')}}">
+                                      <input type="text" class="form-control" name="father_name" placeholder="{{__('Father Name')}}">
                                     </div>
                                 </div>
                             </div>
@@ -187,7 +60,7 @@
                                 <div class="primary-form-group mt-2 pt-2">
                                     <div class="primary-form-group-wrap">
                                       <label class="form-label">{{ __('Date Of Birth') }} <span class="text-danger">*</span></label>
-                                      <input type="date" class="form-control" name="dob" value="{{$teacher->dob}}" placeholder="{{__('Date Of Birth') }}">
+                                      <input type="date" class="form-control" name="dob" placeholder="{{__('Date Of Birth') }}">
                                     </div>
                                 </div>
                             </div>
@@ -197,8 +70,8 @@
                                       <label for="BatchName" class="form-label">{{ __('Marital Status') }} <span class="text-danger">*</span></label>
                                       <select class="form-control" id="BatchName" name="marital_status">
                                         <option value="">{{ __('Select Marital Status') }}</option>
-                                        <option {{ ($teacher->teacher_info->marital_status == MARRIED) ? 'selected' : ''}} value="{{MARRIED}}">{{ __('Married') }}</option>
-                                        <option {{ ($teacher->teacher_info->marital_status == UNMARRIED) ? 'selected' : ''}} value="{{UNMARRIED}}">{{ __('Unmarried') }}</option>
+                                        <option value="{{MARRIED}}">{{ __('Married') }}</option>
+                                        <option value="{{UNMARRIED}}">{{ __('Unmarried') }}</option>
                                       </select>
                                     </div>
                                 </div>
@@ -207,7 +80,7 @@
                                 <div class="primary-form-group mt-2 pt-2">
                                     <div class="primary-form-group-wrap">
                                       <label class="form-label">{{ __('Phone') }} <span class="text-danger">*</span></label>
-                                      <input type="number" value="{{ $teacher->phone}}" class="form-control" name="phone" placeholder="{{__('Enter phone')}}">
+                                      <input type="number" class="form-control" name="phone" placeholder="{{__('Enter phone')}}">
                                     </div>
                                 </div>
                             </div>
@@ -215,7 +88,7 @@
                                 <div class="primary-form-group mt-2 pt-2">
                                     <div class="primary-form-group-wrap">
                                       <label class="form-label">{{ __('Guardian phone: ')}} <span class="text-lighter">({{ __('Husband, Brother, Father, Mother')}})</span></label>
-                                      <input type="number" class="form-control" value="{{ $teacher->teacher_info->guardian_phone}}" name="guardian_phone" placeholder="{{ __('Enter guardian phone') }}">
+                                      <input type="number" class="form-control" name="guardian_phone" placeholder="{{ __('Enter guardian phone') }}">
                                     </div>
                                 </div>
                             </div>
@@ -223,13 +96,7 @@
                                 <label for="BatchName" class="form-label">{{ __('Course Select') }} <span class="text-danger">*</span></label>
                                 <select class="form-select form-control multiple-select-clear-field" data-placeholder="Select Teacher Course" multiple name="course_id[]">
                                     @foreach ($courseList as $data)
-                                        <option value="{{ $data->id }}" 
-                                            @if ($teacher && $teacher->teacher_apply_info && $teacher->teacher_apply_info->contains('course_id', $data->id))
-                                                selected
-                                            @endif
-                                        >
-                                            {{ $data->subject_name }}
-                                        </option>
+                                        <option value="{{$data->id}}">{{$data->subject_name}}</option>
                                     @endforeach
                                 </select>
                                 <div class="course_id"></div>
@@ -239,7 +106,7 @@
                                 <div class="primary-form-group mt-2 pt-2">
                                     <div class="primary-form-group-wrap">
                                       <label class="form-label">{{ __('Present Address: ')}} <span class="text-danger">*</span></label>
-                                      <input type="text" class="form-control" value="{{ $teacher->teacher_info->present_address }}" name="present_address" placeholder="{{ __('Present Address') }}">
+                                      <input type="text" class="form-control" name="present_address" placeholder="{{ __('Present Address') }}">
                                     </div>
                                 </div>
                             </div>
@@ -247,7 +114,7 @@
                                 <div class="primary-form-group mt-2 pt-2">
                                     <div class="primary-form-group-wrap">
                                       <label class="form-label">{{ __('Permanent Address: ')}} <span class="text-danger">*</span></label>
-                                      <input type="text" class="form-control" value="{{ $teacher->teacher_info->permanent_address }}" name="permanent_address" placeholder="{{ __('Permanent Address') }}">
+                                      <input type="text" class="form-control" name="permanent_address" placeholder="{{ __('Permanent Address') }}">
                                     </div>
                                 </div>
                             </div>
@@ -256,7 +123,7 @@
                                 <div class="primary-form-group mt-2 pt-2">
                                     <div class="primary-form-group-wrap">
                                         <label class="form-label">{{ __('শিক্ষাগত যোগ্যতা: ')}} <span class="text-lighter text-xxs">({{ __('কোন প্রতিষ্ঠান থেকে কত সালে এবং কোন বিভাগ/জামাত থেকে ফারেগ হয়েছেন তা বিস্তারিত লিখুন')}})</span> <span class="text-danger">*</span></label>
-                                        <input type="text" class="form-control" name="edu_qualification" placeholder="{{ __('শিক্ষাগত যোগ্যতা') }}" value="{{ $teacher->teacher_info->edu_qualification }}">
+                                        <input type="text" class="form-control" name="edu_qualification" placeholder="{{ __('শিক্ষাগত যোগ্যতা') }}">
                                     </div>
                                 </div>
                             </div>
@@ -265,7 +132,7 @@
                                 <div class="primary-form-group mt-2 pt-2">
                                     <div class="primary-form-group-wrap">
                                         <label class="form-label">{{ __('ট্রেনিং যোগ্যতা: ')}} <span class="text-lighter text-xxs">({{ __('স্বীকৃত প্রাপ্ত কোন বোর্ড থেকে ট্রেনিং করেছেন কিনা? বোর্ডের নাম সহ পাশের সন উল্লেখ করুন।')}})</span> <span class="text-danger">*</span></label>
-                                        <input type="text" class="form-control" name="training_qualification" placeholder="{{ __('ট্রেনিং যোগ্যতা') }}" value="{{ $teacher->teacher_info->training_qualification }}">
+                                        <input type="text" class="form-control" name="training_qualification" placeholder="{{ __('ট্রেনিং যোগ্যতা') }}">
                                     </div>
                                 </div>
                             </div>
@@ -274,7 +141,7 @@
                                 <div class="primary-form-group mt-2 pt-2">
                                     <div class="primary-form-group-wrap">
                                         <label class="form-label">{{ __('অন্যান্য অতিরিক্ত যোগ্যতা: ')}} <span class="text-lighter text-xxs">({{ __('যেমন: কম্পিউটার অপারেটিং, বেসিক ইংলিশ, ইন্টারনেট ব্রাউজিং ইত্যাদি')}})</span> <span class="text-danger">*</span></label>
-                                        <input type="text" class="form-control" name="other_occupation" placeholder="{{ __('অন্যান্য অতিরিক্ত যোগ্যতা') }}" value="{{ $teacher->teacher_info->other_occupation }}">
+                                        <input type="text" class="form-control" name="other_occupation" placeholder="{{ __('অন্যান্য অতিরিক্ত যোগ্যতা') }}">
                                     </div>
                                 </div>
                             </div>
@@ -282,7 +149,7 @@
                                 <div class="primary-form-group mt-2 pt-2">
                                     <div class="primary-form-group-wrap">
                                         <label class="form-label">{{ __('পেশাগত তথ্য: ')}} <span class="text-lighter text-xxs">({{ __('পূর্বের এবং বর্তমানের পেশার বিস্তারিত বিবরণ লিখুন')}})</span> <span class="text-danger">*</span></label>
-                                        <input type="text" class="form-control" name="occupation_details" placeholder="{{ __('পেশাগত তথ্য') }}" value="{{ $teacher->teacher_info->occupation_details }}">
+                                        <input type="text" class="form-control" name="occupation_details" placeholder="{{ __('পেশাগত তথ্য') }}">
                                     </div>
                                 </div>
                             </div>
@@ -292,15 +159,15 @@
                                         <label class="form-label">{{ __('ক্লাস করানোর জন্য আপনার কোন ডিভাইসটি রয়েছে ')}} <span class="text-danger">*</span></label>
                                         <div class="d-flex gap-4 align-items-center">
                                             <label>
-                                                <input type="radio" class="form-check-input border" id="radio1" name="class_device" value="laptop" {{ $teacher->teacher_info->class_device == 'laptop' ? 'checked' : ''}}>
+                                                <input type="radio" class="form-check-input border" id="radio1" name="class_device" value="laptop">
                                                 ল্যাপটপ
                                             </label>
                                             <label>
-                                                <input type="radio" class="form-check-input border me-1" id="radio2" name="class_device" value="desktop" {{ $teacher->teacher_info->class_device == 'desktop' ? 'checked' : ''}}>
+                                                <input type="radio" class="form-check-input border me-1" id="radio2" name="class_device" value="desktop">
                                                 ডেস্কটপ
                                             </label>
                                             <label>
-                                                <input type="radio" class="form-check-input border me-1" id="radio3" name="class_device" value="not" {{ $teacher->teacher_info->class_device == 'not' ? 'checked' : ''}}>
+                                                <input type="radio" class="form-check-input border me-1" id="radio3" name="class_device" value="not">
                                                 কোনটিই নেই
                                             </label>
                                         </div>
@@ -362,11 +229,11 @@
                                 <label class="form-label f6">{{ __('আপনি কি উপরোল্লিখিত নীতিমাল যথাযথভাবে মেনে চলতে পারবেন ? ')}} <span class="text-danger">*</span></label>
                                 <div class="d-flex gap-3 align-items-center">
                                     <label>
-                                        <input type="radio" class="form-check-input border" id="radio1" name="is_all_agree" value="yes" {{ $teacher->teacher_info->is_all_agree == 'yes' ? 'checked' : ''}}>
+                                        <input type="radio" class="form-check-input border" id="radio1" name="is_all_agree" value="yes">
                                         হ্যাঁ
                                     </label>
                                     <label>
-                                        <input type="radio" class="form-check-input border" id="radio2" name="is_all_agree" value="no" {{ $teacher->teacher_info->is_all_agree == 'no' ? 'checked' : ''}}>
+                                        <input type="radio" class="form-check-input border" id="radio2" name="is_all_agree" value="no">
                                         না
                                     </label>
                                 </div>
@@ -379,22 +246,16 @@
                             <div class="primary-form-group mt-2 pt-2">
                                 <div class="primary-form-group-wrap">
                                   <label class="form-label">{{ __('শিক্ষাগত যোগ্যতার সনদ সমূহ') }} <span class="text-danger">*</span></label>
-                                  <input type="file" class="form-control" name="certificate_file" placeholder="{{__('শিক্ষাগত যোগ্যতার সনদ সমূহ')}}">
+                                  <input type="file" class="form-control" name="certificate_file" placeholder="{{__('শিক্ষাগত যোগ্যতার সনদ সমূহ')}}" required>
                                 </div>
-                                @if (isset($teacher->teacher_info->certificate_file))
-                                    <img src="{{ asset($teacher->teacher_info->certificate_file) }}" alt="" width="100px" height="100px" />
-                                @endif
                             </div>
                         </div>
                         <div class="col-12 col-md-4">
                             <div class="primary-form-group mt-2 pt-2">
                                 <div class="primary-form-group-wrap">
                                   <label class="form-label">{{ __('ভোটার আইডি বা জন্ম নিবন্ধনের কপি') }} <span class="text-danger">*</span></label>
-                                  <input type="file" class="form-control" name="nid_file" placeholder="{{__('ভোটার আইডি বা জন্ম নিবন্ধনের কপি')}}">
+                                  <input type="file" class="form-control" name="nid_file" placeholder="{{__('ভোটার আইডি বা জন্ম নিবন্ধনের কপি')}}" required>
                                 </div>
-                                @if (isset($teacher->teacher_info->nid_file))
-                                    <img src="{{ asset($teacher->teacher_info->nid_file) }}" alt="" width="100px" height="100px" />
-                                @endif
                             </div>
                         </div>
                         <div class="col-12 col-md-4">

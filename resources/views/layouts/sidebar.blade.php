@@ -82,7 +82,7 @@
             </div>
           </li>
           <li class="nav-item">
-            <a href="#" class="d-flex align-items-center nav-link {{@$activeTeacher}}" data-bs-toggle="collapse" data-bs-target="#collapseExample1" aria-expanded="false" aria-controls="collapseExample">
+            <a class="nav-link {{@$activeTeacher}}" href="{{route('admin.teacher.all')}}">
               <div class="icon icon-shape icon-sm shadow border-radius-md bg-white text-center me-2 d-flex align-items-center justify-content-center">
                 <svg width="12px" height="12px" viewBox="0 0 42 42" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
                   <title>box-3d-50</title>
@@ -99,13 +99,8 @@
                   </g>
                 </svg>
               </div>
-              <span class="nav-link-text ms-1">Teacher Management</span>
+              <span class="nav-link-text ms-1">Teacher List</span>
             </a>
-            <div class="collapse" id="collapseExample1" data-bs-parent="#sidebarMenu">
-                <ul class="ms-4">
-                    <li><a class="text-xs" href="{{route('admin.teacher.all')}}">{{__('Teacher List')}}</a></li>
-                </ul>
-            </div>
           </li>
 
           <li class="nav-item">

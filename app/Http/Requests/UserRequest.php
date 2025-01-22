@@ -33,7 +33,7 @@ class UserRequest extends FormRequest
             'gender' => ['required'],
             'country_id' => ['required'],
             'state_id' => ['required'],
-            'dob' => ['required', 'date'],
+            // 'dob' => ['required', 'date'],
             'password' => 'bail|required|min:6',
             'course_id' => ['required', 'array'],
             "course_id.*" => ['bail','required'],

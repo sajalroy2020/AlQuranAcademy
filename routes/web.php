@@ -25,6 +25,7 @@ Route::middleware('auth')->group(function () {
         // teacher route
         Route::group(['prefix' => 'teacher', 'as' => 'teacher.'], function () {
             Route::get('all', [TeacherController::class, 'all'])->name('all');
+            Route::get('add', [TeacherController::class, 'add'])->name('add');
             Route::post('store', [TeacherController::class, 'store'])->name('store');
             Route::get('edit/{id}', [TeacherController::class, 'edit'])->name('edit');
             Route::post('delete/{id}', [TeacherController::class, 'delete'])->name('delete');

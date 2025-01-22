@@ -158,3 +158,7 @@ const ENROLMENT_CLOSE = 5;
 // class booking status 
 const CLASS_AVAILABLE = 1;
 const CLASS_BOOKED = 2;
+
+// marital status
+const MARRIED = 1;
+const UNMARRIED= 2;

@@ -70,7 +70,7 @@ class StudentController extends Controller
             $student->gender = $request->gender;
             $student->country_id = $request->country_id;
             $student->state_id = $request->state_id;
-            $student->dob = $request->dob;
+            // $student->dob = $request->dob;
             $student->password = $request->password;
             $student->save();
 

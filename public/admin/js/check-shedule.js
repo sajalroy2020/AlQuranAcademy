@@ -1,5 +1,17 @@
 $(document).ready(function () {
     let all_day = [];
+    let time;
+
+    // Get selected time
+    $('.time-input').on('input', function () {
+        time = $(this).val();
+        commonAjaxRequest('GET', $('#get-filter-schedule').val(), classDataResponse, classDataResponse, {strt_time: time, day_list: all_day } );
+        $(".showClassSlot").html('');          
+        function classDataResponse(response) {
+            console.log('response', response);
+            $(".showClassSlot").html(response.responseText);          
+        }
+    })    
 
     // Handle button clicks
     $('.btn[data-day]').on('click', function () {
@@ -17,7 +29,7 @@ $(document).ready(function () {
         }        
 
         // Call the commonAjaxRequest function with updated day_list 
-        commonAjaxRequest('GET', $('#get-filter-schedule').val(), classDataResponse, classDataResponse, { day_list: all_day } );
+        commonAjaxRequest('GET', $('#get-filter-schedule').val(), classDataResponse, classDataResponse, {strt_time: time, day_list: all_day } );
         $(".showClassSlot").html('');          
         function classDataResponse(response) {
             console.log('response', response);

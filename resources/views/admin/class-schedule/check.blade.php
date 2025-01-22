@@ -14,27 +14,33 @@
                 <button type="submit" id="add-news" class="btn btn-primary mb-0" data-bs-toggle="modal" data-bs-target="#add-modal"><i class="fa fa-plus"></i> {{ __('Add New') }}</button>
             </div>
             <div class="bg-white rounded p-3">
-                <div class="d-flex flex-wrap gap-3 align-items-center justify-content-center">
-                    <div>
-                        <button data-day="Monday" class="btn btn-outline-primary border-danger btn-sm w-100 text-center px-4">Monday</button>
+                <div class="d-flex flex-wrap gap-2 align-items-end justify-content-center">
+                    <div class="primary-form-group">
+                        <div class="primary-form-group-wrap">
+                            <label class="form-label">{{ __('Select Time') }}</label>
+                            <input type="time" class="form-control time-input" name="time">
+                        </div>
                     </div>
                     <div>
-                        <button data-day="Tuesday" class="btn btn-outline-primary border-danger btn-sm w-100 text-center px-4">Tuesday</button>
+                        <button data-day="Monday" class="btn btn-outline-primary border-danger btn-sm w-100 text-center px-4 mb-1">Monday</button>
                     </div>
                     <div>
-                        <button data-day="Wednesday" class="btn btn-outline-primary border-danger btn-sm w-100 text-center px-4">Wednesday</button>
+                        <button data-day="Tuesday" class="btn btn-outline-primary border-danger btn-sm w-100 text-center px-4 mb-1">Tuesday</button>
                     </div>
                     <div>
-                        <button data-day="Thursday" class="btn btn-outline-primary border-danger btn-sm w-100 text-center px-4">Thursday</button>
+                        <button data-day="Wednesday" class="btn btn-outline-primary border-danger btn-sm w-100 text-center px-4 mb-1">Wednesday</button>
                     </div>
                     <div>
-                        <button data-day="Friday" class="btn btn-outline-primary border-danger btn-sm w-100 text-center px-4">Friday</button>
+                        <button data-day="Thursday" class="btn btn-outline-primary border-danger btn-sm w-100 text-center px-4 mb-1">Thursday</button>
                     </div>
                     <div>
-                        <button data-day="Saturday" class="btn btn-outline-primary border-danger btn-sm w-100 text-center px-4">Saturday</button>
+                        <button data-day="Friday" class="btn btn-outline-primary border-danger btn-sm w-100 text-center px-4 mb-1">Friday</button>
                     </div>
                     <div>
-                        <button data-day="Sunday" class="btn btn-outline-primary border-danger btn-sm w-100 text-center px-4">Sunday</button>
+                        <button data-day="Saturday" class="btn btn-outline-primary border-danger btn-sm w-100 text-center px-4 mb-1">Saturday</button>
+                    </div>
+                    <div>
+                        <button data-day="Sunday" class="btn btn-outline-primary border-danger btn-sm w-100 text-center px-4 mb-1">Sunday</button>
                     </div>
                 </div>
 
@@ -76,7 +82,7 @@
                         <div class="col-12">
                             <div class="primary-form-group mt-2 pt-2">
                                 <div class="primary-form-group-wrap">
-                                  <label for="currentPassword" class="form-label">{{ __('Phone') }} <span class="text-danger">*</span></label>
+                                  <label for="currentPassword" class="form-label">{{ __('Phone - (WhatsApp)') }} <span class="text-danger">*</span></label>
                                   <input type="number" class="form-control" name="phone">
                                 </div>
                             </div>
@@ -90,14 +96,6 @@
                                     <option value="{{GENDER_FEMALE}}">{{ __('Fimale') }}</option>
                                     <option value="{{GENDER_OTHERS}}">{{ __('Other') }}</option>
                                   </select>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-12">
-                            <div class="primary-form-group mt-2 pt-2">
-                                <div class="primary-form-group-wrap">
-                                  <label for="currentPassword" class="form-label">{{ __('Date Of Birth') }} <span class="text-danger">*</span></label>
-                                  <input type="date" class="form-control" name="dob">
                                 </div>
                             </div>
                         </div>

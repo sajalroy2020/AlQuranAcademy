@@ -28,7 +28,7 @@
             <div class="col-12">
                 <div class="primary-form-group mt-2 pt-2">
                     <div class="primary-form-group-wrap">
-                      <label for="currentPassword" class="form-label">{{ __('Phone') }} <span class="text-danger">*</span></label>
+                      <label for="currentPassword" class="form-label">{{ __('Phone - (WhatsApp)') }} <span class="text-danger">*</span></label>
                       <input type="number" class="form-control" name="phone" value="{{$student->phone}}">
                     </div>
                 </div>
@@ -42,14 +42,6 @@
                         <option {{$student->gender == GENDER_FEMALE ? 'selected' : ''}} value="{{GENDER_FEMALE}}">{{ __('Fimale') }}</option>
                         <option {{$student->gender == GENDER_OTHERS ? 'selected' : ''}} value="{{GENDER_OTHERS}}">{{ __('Other') }}</option>
                       </select>
-                    </div>
-                </div>
-            </div>
-            <div class="col-12">
-                <div class="primary-form-group mt-2 pt-2">
-                    <div class="primary-form-group-wrap">
-                      <label for="currentPassword" class="form-label">{{ __('Date Of Birth') }} <span class="text-danger">*</span></label>
-                      <input type="date" class="form-control" name="dob" value="{{$student->dob}}">
                     </div>
                 </div>
             </div>

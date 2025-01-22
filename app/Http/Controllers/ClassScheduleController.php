@@ -186,40 +186,72 @@ class ClassScheduleController extends Controller
 
     public function scheduleFilter(Request $request){
         $day = $request->input('day_list');
+        $time = $request->input('strt_time');
 
-        if (empty($day) || !is_array($day)) {
-            return response()->json(['error' => 'Invalid parameters'], 400);
+        if(empty($day) || !is_array($day)) {
+            return response()->json(['error' => 'Select day'], 400);
         }
 
         $data['classes_list'] = User::where('role', USER_ROLE_TEACHER)
-        ->with(['Class_schedule' => function ($query) use ($day) {
-            $query->select(
-                'class_schedules.teacher_id',
-                'class_schedules.course_id',
-                'class_schedules.id',
-                'class_schedules.day',
-                'class_schedules.start_time',
-                'class_schedules.end_time',
-                'class_schedules.day',
-                DB::raw("CASE 
-                    WHEN class_schedules.booking_status = 2 THEN 'Not Available'
-                    WHEN class_schedules.booking_status = 1 AND class_bookings.class_schedule_id IS NULL THEN 'Available'
-                    ELSE 'Not Available'
-                END AS availability_status")
-            )
-            ->leftJoin('class_bookings', 'class_schedules.id', '=', 'class_bookings.class_schedule_id')
-            ->when($day, function ($query) use ($day) {
-                $query->whereIn('class_schedules.day', $day);
-            });
-        }])
-        ->select(
-            'users.id',          
-            'users.name'
-        )
-        ->get();
+                                ->with(['Class_schedule' => function ($query) use ($day, $time) {
+                                    $query->select(
+                                        'class_schedules.teacher_id',
+                                        'class_schedules.course_id',
+                                        'class_schedules.id',
+                                        'class_schedules.day',
+                                        'class_schedules.start_time',
+                                        'class_schedules.end_time',
+                                        DB::raw("CASE 
+                                            WHEN class_schedules.booking_status = 2 THEN 'Not Available'
+                                            WHEN class_schedules.booking_status = 1 AND class_bookings.class_schedule_id IS NULL THEN 'Available'
+                                            ELSE 'Not Available'
+                                        END AS availability_status")
+                                    )
+                                    ->leftJoin('class_bookings', 'class_schedules.id', '=', 'class_bookings.class_schedule_id')
+                                    ->when(!$time && $day, function ($query) use ($day) {
+                                        $query->whereIn('class_schedules.day', $day);
+                                    })
+                                    ->when($time, function ($query) use ($time) {
+                                        $query->where('class_schedules.start_time', $time);
+                                    });
+                                }])
+                                ->select(
+                                    'users.id',
+                                    'users.name'
+                                )
+                                ->get();
 
-        // return  $data['classes_list'];
-
+        // $data['classes_list'] = User::where('role', USER_ROLE_TEACHER)
+        // ->with(['Class_schedule' => function ($query) use ($day) {
+        //     $query->select(
+        //         'class_schedules.teacher_id',
+        //         'class_schedules.course_id',
+        //         'class_schedules.id',
+        //         'class_schedules.day',
+        //         'class_schedules.start_time',
+        //         'class_schedules.end_time',
+        //         'class_schedules.day',
+        //         DB::raw("CASE 
+        //             WHEN class_schedules.booking_status = 2 THEN 'Not Available'
+        //             WHEN class_schedules.booking_status = 1 AND class_bookings.class_schedule_id IS NULL THEN 'Available'
+        //             ELSE 'Not Available'
+        //         END AS availability_status")
+        //     )
+        //     ->leftJoin('class_bookings', 'class_schedules.id', '=', 'class_bookings.class_schedule_id')
+        //     ->when($time, function ($query) use ($time) {
+        //         $query->where('class_schedules.start_time', $time);
+        //     }, function ($query) use ($day) {
+        //         $query->when($day, function ($query) use ($day) {
+        //             $query->whereIn('class_schedules.day', $day);
+        //         });
+        //     });
+        // }])
+        // ->select(
+        //     'users.id',          
+        //     'users.name'
+        // )
+        // ->get();
+        
         return view('admin.class-schedule.class-slot', $data)->render();
     }
 
