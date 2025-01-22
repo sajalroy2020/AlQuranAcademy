@@ -179,39 +179,39 @@
                     </div>
                     <div class="col-12 mt-4">
                         <h6>অনলাইন ক্লাসের পরিবেশের জন্য নিন্মোক্ত বিষয়গুলো কি আপনি বজায় রাখতে পারবেন? (গুরুত্বসহকারে পড়ে টিক দিন)</h6>
-                        <div class="d-flex gap-3 pt-2">
-                            <h6 class="text-danger">*</h6>
+                        <div class="d-flex align-items-center gap-3 pt-2">
+                            <h6 class="text-danger"><input class="form-check-input border" type="checkbox" value="" id="flexCheckChecked" required></h6>
                             <p class="text-xs">কোলাহলমুক্ত ক্লাসের পরিবেশ হওয়া। যেমন, ক্লাসের সময় ছোট বাচ্চাদের উপস্থিতি না থাকা, পারিবারিক ব্যাস্ততা শেষ করে ক্লাসে উপস্থিত হওয়া, ক্লাস চলাকালীন সময়ে মোবাইল সাইলেন্ট রাখা।</p>
                         </div>
-                        <div class="d-flex gap-3">
-                            <h6 class="text-danger">*</h6>
+                        <div class="d-flex align-items-center gap-3">
+                            <h6 class="text-danger"><input class="form-check-input border" type="checkbox" value="" id="flexCheckChecked" required></h6>
                             <p class="text-xs">ক্যামেরায় ধারণকৃত অংশটি পরিপাটি হওয়া। যেমন, আপনার পেছনের অংশটিতে সুন্দর একটি পর্দা থাকা অথবা বই সমৃদ্ধ বুক সেলফ থাকা। কোন কাপড় ঝুলানো না থাকা বা পিছনে মানুষের চলাচল না থাকা ইত্যাদি।</p>
                         </div>
-                        <div class="d-flex gap-3">
-                            <h6 class="text-danger">*</h6>
+                        <div class="d-flex align-items-center gap-3">
+                            <h6 class="text-danger"><input class="form-check-input border" type="checkbox" value="" id="flexCheckChecked" required></h6>
                             <p class="text-xs">নিরবিচ্ছিন্ন ব্রডব্যান্ড কানেকশন এবং মোবাইল ডাটার ব্যাবস্থা থাকা। যেমন, উন্নত মানের ব্রন্ডব্যান্ড কানেকশনের পাশাপাশি মাসিক প্যাকেজে মোবাইল ডাটা ব্যাবস্থা রাখা। কোন কারনে ইন্টারনেট কানেকশন বিচ্ছিন্ন হয়ে গেলে সাথে সাথে মোবাইল হট্স</p>
                         </div>
-                        <div class="d-flex gap-3">
-                            <h6 class="text-danger">*</h6>
+                        <div class="d-flex align-items-center gap-3">
+                            <h6 class="text-danger"><input class="form-check-input border" type="checkbox" value="" id="flexCheckChecked" required></h6>
                             <p class="text-xs">কারণবশত বিদ্যুত বিভ্রাট হলে বা ল্যাপটপে চার্জ না থাকলে সাময়িক সময়ের জন্য মোবাইলে জুমের মাধ্যমে ক্লাস চালিয়ে নেওয়া। কোন অবস্থাতেই ক্লাস মিস না দেওয়া। অনিবার্য কারণবশত যদি জুম অ্যাপেও কারিগরি সমস্যা দেখা দেয় তাহলে শুধু সেই ক্লাসটি হোয়াটসঅ্যাপের মাধ্যমে করিয়ে সাথে সাথে একাডেমির অফিসে অবগত করে দ্রুত সমস্যার সমাধান করিয়ে নেওয়া।</p>
                         </div>
-                        <div class="d-flex gap-3">
-                            <h6 class="text-danger">*</h6>
+                        <div class="d-flex align-items-center gap-3">
+                            <h6 class="text-danger"><input class="form-check-input border" type="checkbox" value="" id="flexCheckChecked" required></h6>
                             <p class="text-xs">অবশ্যই সর্বদা জুমের মাধ্যমে ক্লাস পরিচালনা করা। যেহেতু আমরা জুমের ফ্রি ভার্সন ব্যাবহার করে থাকি, তাই ৪০ মিনিট পরে ক্লাস অটোমেটিক বন্ধ হয়ে যায়। সেকারণে সাথে সাথেই পুনরায় ক্লাস চালু করে নির্ধারিত এক ঘন্টা পূর্ণ করা।</p>
                         </div>
 
                         <h6 class="pt-4">আমাদের অতি গুরুত্বপূর্ণ ক্লাসের সময় গুলোতে আপনি সময় দিতে পারবেন তো?</h6>
 
-                        <div class="d-flex gap-3">
-                            <h6 class="text-danger">*</h6>
+                        <div class="d-flex align-items-center gap-3">
+                            <h6 class="text-danger"><input class="form-check-input border" type="checkbox" value="" id="flexCheckChecked" required></h6>
                             <p class="text-xs">শনিবার থেকে বৃহস্পতিবার ফজরের পর সকাল ৫ টা থেকে সকাল ৮ টা পর্যন্ত সময় দিতে হবে। (বাধ্যতামূলক)</p>
                         </div>
-                        <div class="d-flex gap-3">
-                            <h6 class="text-danger">*</h6>
+                        <div class="d-flex align-items-center gap-3">
+                            <h6 class="text-danger"><input class="form-check-input border" type="checkbox" value="" id="flexCheckChecked" required></h6>
                             <p class="text-xs">শনিবার এবং রবিবার মাগরিবের পর থেকে রাত ১২ টা পর্যন্ত নূন্যতম তিনটি ক্লাসের জন্য তিন ঘন্টা সময় দিতে হবে। (বাধ্যতামূলক)</p>
                         </div>
-                        <div class="d-flex gap-3">
-                            <h6 class="text-danger">*</h6>
+                        <div class="d-flex align-items-center gap-3">
+                            <h6 class="text-danger"><input class="form-check-input border" type="checkbox" value="" id="flexCheckChecked" required></h6>
                             <p class="text-xs">এছাড়াও প্রয়োজনে সোমবার থেকে বৃহস্পতিবার মাগরিব থেকে রাত ১২ টা পর্যন্ত একটি বা দুটি ক্লাসের সময় দিতে হতে পারে।</p>
                         </div>
 
