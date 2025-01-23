@@ -41,6 +41,8 @@
         <div class="modal-content">
             <form class="ajax-request reset" action="{{route('admin.class-schedule.store')}}" method="POST" data-handler="commonResponse">
                 @csrf
+                <input type="hidden" name="days[]" id="all-day" />
+
                 <div class="modal-body">
                     <div class="d-flex justify-content-between align-items-center pb-30">
                         <h5>{{__('Add New Class Schedule')}}</h5>
@@ -48,6 +50,30 @@
                     </div>
                     <div class="row">
                         <div class="col-12">
+                            <div class="primary-form-group my-2 pt-2">
+                                <div class="primary-form-group-wrap">
+                                  <label class="form-label">{{ __('Teacher Select') }} <span class="text-danger">*</span></label>
+                                  <select class="form-control getTeacherCourse" name="teacher_id">
+                                    <option value="">{{__("Select Teacher")}}</option>
+                                    @foreach ($teachers as $data)
+                                        <option value="{{$data->id}}">{{$data->name}}</option>
+                                    @endforeach
+                                  </select>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="primary-form-group my-2">
+                                <div class="primary-form-group-wrap">
+                                  <label class="form-label">{{ __('Course Select') }} <span class="text-danger">*</span></label>
+                                  <select class="form-control addCourse" name="course_id">
+                                    
+                                  </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        {{-- <div class="col-12">
                             <div class="primary-form-group mt-2 pt-2">
                                 <div class="primary-form-group-wrap">
                                   <label class="form-label">{{ __('Select Day') }} <span class="text-danger">*</span></label>
@@ -63,30 +89,32 @@
                                   </select>
                                 </div>
                             </div>
-                        </div>
-                        <div class="col-12">
-                            <div class="primary-form-group my-2 pt-2">
-                                <div class="primary-form-group-wrap">
-                                  <label class="form-label">{{ __('Teacher Select') }} <span class="text-danger">*</span></label>
-                                  <select class="form-control getTeacherCourse" name="teacher_id">
-                                    <option value="">{{__("Select Teacher")}}</option>
-                                    @foreach ($teachers as $data)
-                                        <option value="{{$data->id}}">{{$data->name}}</option>
-                                    @endforeach
-                                  </select>
-                                </div>
+                        </div> --}}
+
+                        <div class="d-flex flex-wrap gap-2 align-items-end justify-content-center pt-2">
+                            <div>
+                                <button type="button" data-day="Monday" class="btn btn-outline-primary border-danger btn-sm w-100 text-center px-4 mb-1">Monday</button>
+                            </div>
+                            <div>
+                                <button type="button" data-day="Tuesday" class="btn btn-outline-primary border-danger btn-sm w-100 text-center px-4 mb-1">Tuesday</button>
+                            </div>
+                            <div>
+                                <button type="button" data-day="Wednesday" class="btn btn-outline-primary border-danger btn-sm w-100 text-center px-4 mb-1">Wednesday</button>
+                            </div>
+                            <div>
+                                <button type="button" data-day="Thursday" class="btn btn-outline-primary border-danger btn-sm w-100 text-center px-4 mb-1">Thursday</button>
+                            </div>
+                            <div>
+                                <button type="button" data-day="Friday" class="btn btn-outline-primary border-danger btn-sm w-100 text-center px-4 mb-1">Friday</button>
+                            </div>
+                            <div>
+                                <button type="button" data-day="Saturday" class="btn btn-outline-primary border-danger btn-sm w-100 text-center px-4 mb-1">Saturday</button>
+                            </div>
+                            <div>
+                                <button type="button" data-day="Sunday" class="btn btn-outline-primary border-danger btn-sm w-100 text-center px-4 mb-1">Sunday</button>
                             </div>
                         </div>
-                        <div class="col-12">
-                            <div class="primary-form-group my-2 pt-2">
-                                <div class="primary-form-group-wrap">
-                                  <label class="form-label">{{ __('Course Select') }} <span class="text-danger">*</span></label>
-                                  <select class="form-control addCourse" name="course_id">
-                                    
-                                  </select>
-                                </div>
-                            </div>
-                        </div>
+                        <div class="days text-center"></div>
 
                         <div class="col-12">
                             <div id="time-container">

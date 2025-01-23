@@ -1,6 +1,23 @@
 (function ($) {
     "use strict";
 
+    // Handle button clicks
+    let all_day = [];
+    $('.btn[data-day]').on('click', function () {
+        const day = $(this).data('day');
+        const index = all_day.indexOf(day);
+        if (index === -1) {
+            all_day.push(day);
+            $(this).addClass('btn-primary').removeClass('btn-outline-primary');
+        } else {
+            all_day.splice(index, 1);
+            $(this).addClass('btn-outline-primary').removeClass('btn-primary');
+        }
+        $('#all-day').val(all_day);
+        console.log($('#all-day').val());
+        
+    });
+
     // get teacher wise course
     $(document).ready(function () {
         $(document).on('change', '.getTeacherCourse', function() {

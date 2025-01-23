@@ -7,6 +7,7 @@ use App\Models\ClassSchedule;
 use App\Models\User;
 use App\Models\Course;
 use App\Models\Country;
+use App\Models\ClassSlot;
 use App\Models\TeacherApplyInfo;
 use App\Traits\JsonResponseTrait;
 use Illuminate\Http\Request;
@@ -21,7 +22,7 @@ class ClassScheduleController extends Controller
 
     public function list(Request $request){
         if ($request->ajax()) {
-            $schedule = ClassSchedule::with('course_list')->orderBy('id', 'desc');
+            $schedule = ClassSchedule::with('course_list', 'class_slot')->orderBy('id', 'desc');
             
             return datatables($schedule)
                 ->addIndexColumn()
@@ -38,7 +39,16 @@ class ClassScheduleController extends Controller
                     return $state->day;
                 })
                 ->addColumn('time', function ($state) {
-                    return ($state->start_time ? \Carbon\Carbon::parse($state->start_time)->format('h:i A') : null) . ' - ' . ($state->end_time ? \Carbon\Carbon::parse($state->end_time)->format('h:i A') : null);
+                    $timeSlots = []; 
+                    foreach ($state->class_slot as $value) {
+                        $formattedTime = ($value->start_time ? \Carbon\Carbon::parse($value->start_time)->format('h:i A') : null) . ' - ' . 
+                                         ($value->end_time ? \Carbon\Carbon::parse($value->end_time)->format('h:i A') : null);
+                        
+                        if ($formattedTime) {
+                            $timeSlots[] = $formattedTime;
+                        }
+                    }
+                    return implode(', ', $timeSlots);
                 })
                 ->addColumn('action', function ($data){
                     return '<div class="d-flex align-items-center g-10 justify-content-center">
@@ -76,78 +86,64 @@ class ClassScheduleController extends Controller
     {
         DB::beginTransaction();
         try {
-            $msg = __(MSG_CREATED_SUCCESSFULLY);
+            $msg = __(MSG_CREATED_SUCCESSFULLY);  
+            $days = is_string($request->days) ? explode(',', $request->days) : $request->days;
+            $days = explode(',', $days[0]);
+
             $schedule = new ClassSchedule();
+            $checkSchedule = ClassSchedule::where('teacher_id', $request->teacher_id)->whereIn('day', $days)->get();
 
-            $checkSchedule = ClassSchedule::where('teacher_id', $request->teacher_id)->where('day', $request->day)->get();
-    
-            // foreach ($request->start_time as $key => $startTime) {
+            // Loop through each day in the request
+            foreach ($days as $day) {
+                $schedule = new ClassSchedule();
+                $schedule->teacher_id = $request->teacher_id;
+                $schedule->course_id = $request->course_id;
+                $schedule->day = $day;
+                $schedule->save();
+                
+                // Loop through each start time for the class
+                foreach ($request->start_time as $key => $startTime) {
+                    $requestedStartTime = \Carbon\Carbon::parse($startTime);
+                    $requestedEndTime = \Carbon\Carbon::parse($request->end_time[$key]);
 
-            //     if ($checkSchedule->isNotEmpty()) {
-            //         foreach ($checkSchedule as $dataItem) {
-            //             $existingStartTime = \Carbon\Carbon::parse($dataItem->start_time)->format('h:i A');
-            //             $existingEndTime = \Carbon\Carbon::parse($dataItem->end_time)->format('h:i A');
-            //             $requestedStartTime = \Carbon\Carbon::parse($startTime)->format('h:i A');
-    
-            //             if ( $existingStartTime <= $requestedStartTime && $existingEndTime > $requestedStartTime ) {
-            //                 return $this->errorResponse([], __('Already booked for this time'));
-            //             }
-            //         }
-            //     }
+                    // Iterate through each 1-hour slot between start and end time
+                    while ($requestedStartTime < $requestedEndTime) {
+                        $nextSlotStart = $requestedStartTime->copy();
+                        $nextSlotEnd = $nextSlotStart->copy()->addHour();
 
-            //     $schedule = new ClassSchedule();
-            //     $schedule->teacher_id = $request->teacher_id;
-            //     $schedule->course_id = $request->course_id;
-            //     $schedule->day = $request->day;
-            //     $schedule->start_time = $startTime;
-            //     $schedule->end_time = $request->end_time[$key];
-            //     $schedule->save();
-            // }
-
-            // return $request->all();
-
-            foreach ($request->start_time as $key => $startTime) {
-                $requestedStartTime = \Carbon\Carbon::parse($startTime);
-                $requestedEndTime = \Carbon\Carbon::parse($request->end_time[$key]);
-            
-                while ($requestedStartTime < $requestedEndTime) {
-                    $nextSlotStart = $requestedStartTime->copy();
-                    $nextSlotEnd = $nextSlotStart->copy()->addHour();
-            
-                    // Check if this slot overlaps with any existing schedule
-                    if ($checkSchedule->isNotEmpty()) {
+                        // Check for overlaps with existing schedules
                         foreach ($checkSchedule as $dataItem) {
                             $existingStartTime = \Carbon\Carbon::parse($dataItem->start_time);
                             $existingEndTime = \Carbon\Carbon::parse($dataItem->end_time);
-            
+
+                            // If the new slot overlaps with an existing slot, return error
                             if (
-                                ($nextSlotStart >= $existingStartTime && $nextSlotStart < $existingEndTime) || 
+                                ($nextSlotStart >= $existingStartTime && $nextSlotStart < $existingEndTime) ||
                                 ($nextSlotEnd > $existingStartTime && $nextSlotEnd <= $existingEndTime)
                             ) {
                                 return $this->errorResponse([], __('Already booked for this time: ' . $nextSlotStart->format('h:i A')));
                             }
                         }
+
+                        // Save this valid 1-hour slot
+                        $slot = new ClassSlot();
+                        $slot->class_schedule_id = $schedule->id;
+                        $slot->day = $day;
+                        $slot->start_time = $nextSlotStart;
+                        $slot->end_time = $nextSlotEnd;
+                        $slot->save();
+
+                        // Move to the next 1-hour slot
+                        $requestedStartTime = $nextSlotEnd;
                     }
-            
-                    // Save this 1-hour slot
-                    $schedule = new ClassSchedule();
-                    $schedule->teacher_id = $request->teacher_id;
-                    $schedule->course_id = $request->course_id;
-                    $schedule->day = $request->day;
-                    $schedule->start_time = $nextSlotStart;
-                    $schedule->end_time = $nextSlotEnd;
-                    $schedule->save();
-            
-                    // Move to the next 1-hour slot
-                    $requestedStartTime = $nextSlotEnd;
                 }
             }
-            
 
             DB::commit();
             return $this->successResponse([], $msg);
 
         } catch (Exception $exception) {
+            return $exception;
             DB::rollBack();
             Log::info($exception->getMessage());
             return $this->errorResponse([], __(MSG_SOMETHING_WENT_WRONG));

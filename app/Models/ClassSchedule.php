@@ -25,4 +25,9 @@ class ClassSchedule extends Model
         return $this->hasMany(ClassBooking::class, 'class_schedule_id', 'id');
     }
 
+    public function class_slot()
+    {
+        return $this->hasMany(ClassSlot::class, 'class_schedule_id', 'id');
+    }
+
 }

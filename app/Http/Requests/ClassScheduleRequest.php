@@ -23,7 +23,7 @@ class ClassScheduleRequest extends FormRequest
         $id = isset($this->id)?$this->id:null;
         
         $rules = [
-            "day" => ['bail','required'],
+            "days.*" => ['bail','required'],
             "teacher_id" => ['bail','required'],
             "course_id" => ['bail','required'],
            
@@ -43,6 +43,7 @@ class ClassScheduleRequest extends FormRequest
     public function messages()
     {
         return [
+            "days.*.required" => ['Day field is required'],
             'start_time.*.required' => __('This field is required'),
             'end_time.*.required' => __('This field is required'),
         ];
