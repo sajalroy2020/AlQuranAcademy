@@ -7,8 +7,10 @@ use App\Models\User;
 use App\Models\State;
 use App\Models\Course;
 use App\Models\Country;
+use App\Models\ClassBooking;
 use Illuminate\Http\Request;
 use App\Models\ApplicantInfo;
+use Illuminate\Support\Carbon;
 use App\Traits\JsonResponseTrait;
 use Illuminate\Support\Facades\DB;
 use App\Http\Requests\UserRequest;
@@ -119,6 +121,34 @@ class StudentController extends Controller
         } catch (Exception $e) {
             return $this->errorResponse([], __(MSG_SOMETHING_WENT_WRONG));
         }
+    }
+
+    public function todayClass()
+    {
+        $today = Carbon::now()->format('l'); 
+        $data['class'] = ClassBooking::where('student_id', auth()->id())
+            ->whereHas('classSchedule', function ($query) use ($today) {
+                $query->where('day', $today);
+            })
+            ->with('classSchedule')
+            ->get();
+
+        $data['pageTitle'] = __('Today All Class');
+        $data['activeTodayClass'] = 'active';
+        $data['today'] = $today;
+
+        return view('student.class-history.today-class', $data);
+    }
+
+    public function allClass()
+    {
+        $data['class'] = ClassBooking::where('student_id', auth()->id()) ->with('classSchedule')->get();
+
+        $data['pageTitle'] = __('All Class List');
+        $data['activeAllClass'] = 'active';
+        $data['allday'] = ['Friday', 'Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday'];
+
+        return view('student.class-history.all-class', $data);
     }
 
 }

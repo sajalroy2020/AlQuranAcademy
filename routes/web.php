@@ -94,6 +94,15 @@ Route::middleware('auth')->group(function () {
     // teachers all route list
     Route::group(['prefix' => 'teacher', 'as' => 'teacher.'], function () {
         Route::get('active-route', [TeacherController::class, 'activeRoute'])->name('active-route');
+
+        Route::get('today-class', [TeacherController::class, 'todayClass'])->name('today-class');
+        Route::get('all-class', [TeacherController::class, 'allClass'])->name('all-class');
+    });
+
+    // student all route list
+    Route::group(['prefix' => 'student', 'as' => 'student.'], function () {
+        Route::get('today-class', [StudentController::class, 'todayClass'])->name('today-class');
+        Route::get('all-class', [StudentController::class, 'allClass'])->name('all-class');
     });
 
 

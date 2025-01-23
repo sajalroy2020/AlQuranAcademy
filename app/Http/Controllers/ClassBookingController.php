@@ -7,6 +7,7 @@ use Illuminate\Http\Request;
 use App\Models\ClassBooking;
 use App\Models\ApplicantInfo;
 use App\Models\ClassSchedule;
+use Illuminate\Support\Carbon;
 use App\Traits\JsonResponseTrait;
 use Illuminate\Support\Facades\DB;
 use App\Http\Requests\ClassBookingRequest;

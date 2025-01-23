@@ -224,7 +224,7 @@ class ClassScheduleController extends Controller
 
     public function scheduleFilter(Request $request){
         $day = $request->input('day_list');
-        $time = $request->input('strt_time');
+        $time = $request->input('start_time');
 
         if(empty($day) || !is_array($day)) {
             return response()->json(['error' => 'Select day'], 400);
@@ -246,11 +246,13 @@ class ClassScheduleController extends Controller
                                         END AS availability_status")
                                     )
                                     ->leftJoin('class_bookings', 'class_schedules.id', '=', 'class_bookings.class_schedule_id')
+                                    ->where('class_schedules.status', STATUS_ACTIVE)
                                     ->when(!$time && $day, function ($query) use ($day) {
                                         $query->whereIn('class_schedules.day', $day);
                                     })
-                                    ->when($time, function ($query) use ($time) {
-                                        $query->where('class_schedules.start_time', $time);
+                                    ->when($time && $day, function ($query) use ($time, $day) {
+                                        $query->where('class_schedules.start_time', $time)
+                                        ->whereIn('class_schedules.day', $day);
                                     });
                                 }])
                                 ->select(

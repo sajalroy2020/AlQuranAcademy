@@ -9,9 +9,11 @@ use App\Models\State;
 use App\Models\Course;
 use App\Models\Country;
 use App\Models\ActiveCheck;
+use App\Models\ClassBooking;
 use Illuminate\Http\Request;
 use App\Models\ClassSchedule;
 use App\Models\TeacherDetails;
+// use Illuminate\Support\Carbon;
 use App\Models\TeacherApplyInfo;
 use App\Traits\JsonResponseTrait;
 use Illuminate\Support\Facades\DB;
@@ -225,7 +227,34 @@ class TeacherController extends Controller
                 'data' => $activeStatus,
             ]);
         }
-    
+    }
+
+    public function todayClass()
+    {
+        $today = Carbon::now()->format('l'); 
+        
+        $data['class'] = ClassBooking::whereHas('classSchedule', function ($query) use ($today) {
+                        $query->where('day', $today)
+                            ->where('teacher_id', auth()->id());
+                    })->with('classSchedule')
+                    ->get();
+
+        $data['pageTitle'] = __('Today All Class');
+        $data['activeTodayClass'] = 'active';
+        $data['today'] = $today;
+
+        return view('teacher.class-history.today-class', $data);
+    }
+
+    public function allClass()
+    {
+        $data['class'] = ClassSchedule::where('teacher_id', auth()->id())->get();
+
+        $data['pageTitle'] = __('All Class List');
+        $data['activeAllClass'] = 'active';
+        $data['allday'] = ['Friday', 'Saturday', 'Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday'];
+
+        return view('teacher.class-history.all-class', $data);
     }
 
 }
