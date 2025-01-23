@@ -17,7 +17,7 @@ class StateController extends Controller
 
     public function all(Request $request){
         if ($request->ajax()) {
-            $state = State::with('country');
+            $state = State::with('country')->orderBy('id', 'desc');
 
             return datatables($state)
                 ->addIndexColumn()

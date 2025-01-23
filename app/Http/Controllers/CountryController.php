@@ -16,7 +16,7 @@ class CountryController extends Controller
 
     public function all(Request $request){
         if ($request->ajax()) {
-            $country = Country::query();
+            $country = Country::query()->orderBy('id', 'desc');
             return datatables($country)
                 ->addIndexColumn()
                 // ->addColumn('status', function ($country) {

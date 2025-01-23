@@ -21,7 +21,7 @@ class ClassScheduleController extends Controller
 
     public function list(Request $request){
         if ($request->ajax()) {
-            $schedule = ClassSchedule::with('course_list');
+            $schedule = ClassSchedule::with('course_list')->orderBy('id', 'desc');
             
             return datatables($schedule)
                 ->addIndexColumn()

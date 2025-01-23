@@ -20,7 +20,7 @@ class StudentController extends Controller
 
     public function allStudent(Request $request){
         if ($request->ajax()) {
-            $student = User::with('applicant_info')->where('role', USER_ROLE_STUDENT);
+            $student = User::with('applicant_info')->where('role', USER_ROLE_STUDENT)->orderBy('id', 'desc');
 
             return datatables($student)
                 ->addIndexColumn()

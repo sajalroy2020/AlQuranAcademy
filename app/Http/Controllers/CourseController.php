@@ -16,7 +16,7 @@ class CourseController extends Controller
 
     public function all(Request $request){
         if ($request->ajax()) {
-            $course = Course::query();
+            $course = Course::query()->orderBy('id', 'desc');
 
             return datatables($course)
                 ->addIndexColumn()

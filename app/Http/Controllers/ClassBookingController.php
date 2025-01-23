@@ -17,7 +17,7 @@ class ClassBookingController extends Controller
 
     public function list(Request $request){
         if ($request->ajax()) {
-            $schedule = ClassBooking::with('classSchedule', 'student', 'classSchedule.teacher_list', 'classSchedule.course_list');
+            $schedule = ClassBooking::with('classSchedule', 'student', 'classSchedule.teacher_list', 'classSchedule.course_list')->orderBy('id', 'desc');
 
             return datatables($schedule)
                 ->addIndexColumn()

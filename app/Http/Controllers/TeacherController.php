@@ -47,7 +47,7 @@ class TeacherController extends Controller
         }
 
         if ($request->ajax()) {
-            $teacher = User::with('teacher_apply_info', 'check_active')->where('role', USER_ROLE_TEACHER);
+            $teacher = User::with('teacher_apply_info', 'check_active')->where('role', USER_ROLE_TEACHER)->orderBy('id', 'desc');
 
             return datatables($teacher)
                 ->addIndexColumn()
