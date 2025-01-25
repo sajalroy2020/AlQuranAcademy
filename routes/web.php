@@ -76,6 +76,7 @@ Route::middleware('auth')->group(function () {
             Route::get('check', [ClassScheduleController::class, 'checkSchedule'])->name('check');
             Route::get('filter-schedule', [ClassScheduleController::class, 'scheduleFilter'])->name('filter-schedule');
             Route::get('check-day', [ClassScheduleController::class, 'checkDay'])->name('check-day');
+            Route::get('check-slot-data', [ClassScheduleController::class, 'checkSlotData'])->name('check-slot-data');
         });
 
         // student class booking route

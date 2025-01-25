@@ -3,11 +3,12 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\ClassScheduleRequest;
-use App\Models\ClassSchedule;
 use App\Models\User;
 use App\Models\Course;
 use App\Models\Country;
 use App\Models\ClassSlot;
+use App\Models\ClassBooking;
+use App\Models\ClassSchedule;
 use App\Models\TeacherApplyInfo;
 use App\Traits\JsonResponseTrait;
 use Illuminate\Http\Request;
@@ -157,6 +158,8 @@ class ClassScheduleController extends Controller
 
     public function update(ClassScheduleRequest $request)
     {
+        // return $request->all();
+
         DB::beginTransaction();
         try {
             $id = $request->get('id', 0);
@@ -175,7 +178,7 @@ class ClassScheduleController extends Controller
             $schedule->save();
 
             // Delete existing slots
-            ClassSlot::where('class_schedule_id', $schedule->id)->delete();
+            // ClassSlot::where('class_schedule_id', $schedule->id)->delete();
 
             // Loop through each start time for the class
             foreach ($request->start_time as $key => $startTime) {
@@ -201,13 +204,23 @@ class ClassScheduleController extends Controller
                         }
                     }
 
-                    // Save this valid 1-hour slot
-                    $slot = new ClassSlot();
-                    $slot->class_schedule_id = $schedule->id;
-                    $slot->day = $request->day;
-                    $slot->start_time = $nextSlotStart;
-                    $slot->end_time = $nextSlotEnd;
-                    $slot->save();
+                    $slotData = [
+                        'class_schedule_id' => $schedule->id,
+                        'day' => $request->day,
+                        'start_time' => $nextSlotStart,
+                        'end_time' => $nextSlotEnd
+                    ];
+
+                    if ($request->class_slot_id[$key] != 0) {
+                        $slot = ClassSlot::find($request->class_slot_id[$key]);
+                        if ($slot) {
+                            $slot->update($slotData);
+                        } else {
+                            ClassSlot::create($slotData);
+                        }
+                    } else {
+                        ClassSlot::create($slotData);
+                    }
 
                     // Move to the next 1-hour slot
                     $requestedStartTime = $nextSlotEnd;
@@ -218,6 +231,7 @@ class ClassScheduleController extends Controller
             return $this->successResponse([], $msg);
 
         } catch (Exception $exception) {
+            return $exception;
             DB::rollBack();
             Log::info($exception->getMessage());
             return $this->errorResponse([], __(MSG_SOMETHING_WENT_WRONG));
@@ -299,7 +313,34 @@ class ClassScheduleController extends Controller
             return response()->json([
                 'status' => 'error',
                 'message' => __('Teacher already has a schedule on this day. Please edit the schedule.')
-            ], 400); // 400 Bad Request for validation errors
+            ], 400); 
+        }
+    }
+
+    public function checkSlotData(Request $request)
+    {
+        $slot_id = $request->input('slot_id');
+
+        try {
+            $isSlotAssigned = ClassBooking::where('class_slot_id', $slot_id)->exists();
+
+            if ($isSlotAssigned) {
+                return response()->json([
+                    'status' => 400,
+                    'message' => __('You cannot delete this slot as it is already assigned.')
+                ], 400);
+            }
+            $slot = ClassSlot::find($slot_id);
+            if ($slot) {
+                $slot->delete();
+            }
+            return response()->json([
+                'status' => 200,
+                'message' => __('Slot deleted successfully.')
+            ], 200);
+
+        } catch (Exception $e) {
+            return $this->errorResponse([], __(MSG_SOMETHING_WENT_WRONG));
         }
     }
 

@@ -61,6 +61,7 @@
             // Create a new row with a delete button
             var newRow = `
                 <div class="row align-items-end time-row">
+                    <input type="hidden" name="class_slot_id[]" value="0">
                     <div class="col-5">
                         <div class="primary-form-group mt-2 pt-2">
                             <div class="primary-form-group-wrap">
@@ -80,7 +81,7 @@
                         </div>
                     </div>
                     <div class="col-2">
-                        <button type="button" class="text-danger border-0 bg-transparent btn-delete-row mb-2">
+                        <button type="button" class="text-danger border-0 bg-transparent btn-delete-row mb-2" data-slotid="0">
                             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-trash3" viewBox="0 0 16 16">
                                 <path d="M6.5 1a1 1 0 0 1 1-1h1a1 1 0 0 1 1 1h4a.5.5 0 0 1 0 1h-1v11a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V2h-1a.5.5 0 0 1 0-1h4zm1-1h1a1 1 0 0 1 1 1v1H6V1a1 1 0 0 1 1-1zm-5 3h10v11a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V3zM6 7.5a.5.5 0 0 1 1 0v4a.5.5 0 0 1-1 0v-4zm3 .5a.5.5 0 0 1 1 0v3a.5.5 0 0 1-1 0v-3z"/>
                             </svg>
@@ -94,9 +95,32 @@
 
         // Delete Row Button Click
         $(document).on('click', '.btn-delete-row', function () {
-            // Remove the clicked row
-            $(this).closest('.time-row').remove();
+            const slotId = $(this).data('slotid');
+            const $row = $(this).closest('.time-row');
+            const message = "Slot deleted successfully.";
+        
+            if (slotId != 0) {
+                commonAjaxRequest('GET', $('#check-slot-data').val(), 
+                    function dataSlotResponse(response) {
+                        if (response.status === 200) {
+                            $row.remove();
+                            alertCommonAjaxMessage('success', message);
+                        } else if (response.status === 400) {
+                            const errorMessage = response.message || 'An error occurred.';
+                            alertCommonAjaxMessage('error', errorMessage);
+                        }
+                    },
+                    function errorCallback(error) {
+                        const errorMessage = error.responseJSON?.message || 'An error occurred.';
+                        alertCommonAjaxMessage('error', errorMessage);
+                    }, 
+                    { slot_id: slotId }
+                );
+            } else {
+                $row.remove(); 
+            }
         });
+
     });
 
     // check already schedule 

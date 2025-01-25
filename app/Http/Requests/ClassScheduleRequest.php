@@ -26,16 +26,9 @@ class ClassScheduleRequest extends FormRequest
             "days.*" => ['bail','required'],
             "teacher_id" => ['bail','required'],
             "course_id" => ['bail','required'],
-           
+            "start_time.*" => ['bail', 'required'],
+            "end_time.*" => ['bail', 'required'],
         ];
-        
-        if (!$id) {
-            $rules["start_time.*"] = ['bail', 'required'];
-            $rules["end_time.*"] = ['bail', 'required'];  
-        } else {
-            $rules["start_time"] = ['bail', 'required'];
-            $rules["end_time"] = ['bail', 'required'];  
-        }
 
         return $rules;
     }

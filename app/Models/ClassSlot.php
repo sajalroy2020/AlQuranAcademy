@@ -6,7 +6,12 @@ use Illuminate\Database\Eloquent\Model;
 
 class ClassSlot extends Model
 {
-    //
+    protected $fillable = [
+        'class_schedule_id',
+        'day',
+        'start_time',
+        'end_time',
+    ];
 
     public function schedule() {
         return $this->belongsTo(ClassSchedule::class, 'class_schedule_id');
