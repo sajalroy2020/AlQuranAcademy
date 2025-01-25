@@ -87,7 +87,6 @@ Route::middleware('auth')->group(function () {
             Route::get('get-teacher-filter', [ClassBookingController::class, 'getTeacherFilter'])->name('get-teacher-filter');
             Route::get('get-teacher-class-list', [ClassBookingController::class, 'getTeacherClassList'])->name('get-teacher-class-list');
             Route::post('store', [ClassBookingController::class, 'store'])->name('store');
-            // Route::get('edit/{id}', [ClassBookingController::class, 'edit'])->name('edit');
             Route::post('delete/{id}', [ClassBookingController::class, 'delete'])->name('delete');
         });
 
@@ -106,7 +105,6 @@ Route::middleware('auth')->group(function () {
         Route::get('today-class', [StudentController::class, 'todayClass'])->name('today-class');
         Route::get('all-class', [StudentController::class, 'allClass'])->name('all-class');
     });
-
 
 });
 
