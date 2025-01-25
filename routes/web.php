@@ -75,6 +75,7 @@ Route::middleware('auth')->group(function () {
             Route::get('get-filter-course', [ClassScheduleController::class, 'getFilterCourse'])->name('get-filter-course');
             Route::get('check', [ClassScheduleController::class, 'checkSchedule'])->name('check');
             Route::get('filter-schedule', [ClassScheduleController::class, 'scheduleFilter'])->name('filter-schedule');
+            Route::get('check-day', [ClassScheduleController::class, 'checkDay'])->name('check-day');
         });
 
         // student class booking route

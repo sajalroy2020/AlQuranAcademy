@@ -19,4 +19,8 @@ class ClassBooking extends Model
         return $this->belongsTo(User::class, 'student_id', 'id');
     }
 
+    public function slot() {
+        return $this->belongsTo(ClassSlot::class, 'class_slot_id');
+    }
+
 }

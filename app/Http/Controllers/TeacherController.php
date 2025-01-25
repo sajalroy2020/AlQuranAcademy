@@ -67,9 +67,9 @@ class TeacherController extends Controller
                     }
                     
                 })
-                // ->addColumn('status', function ($state) {
-                //     return getStatusHtml($state->status);
-                // })
+                ->addColumn('status', function ($state) {
+                    return getStatusHtml($state->status);
+                })
                 ->addColumn('action', function ($data){
                     return '<div class="d-flex align-items-center g-10 justify-content-center">
                                 <a href="' . route('admin.teacher.edit', $data->id) . '" class="border-0 bg-transparent" title="Edit">

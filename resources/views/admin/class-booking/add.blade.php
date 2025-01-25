@@ -17,7 +17,8 @@
                 <!-- class add form -->
                 <form class="ajax-request reset" action="{{route('admin.class-booking.store')}}" method="POST" data-handler="responseWithPageLoad">
                     @csrf
-                    <input type="hidden" id="class_slot_id" value="" name="class_schedule_id" >
+                    <input type="hidden" id="class_slot_id" name="class_slot_id">
+                    <input type="hidden" id="class_schedule_id" name="class_schedule_id">
 
                     <div class="row">
                         <div class="col-md-4 col-12">
@@ -44,12 +45,6 @@
                             </div>
                         </div>
                         <div class="col-md-4 col-12">
-                            {{-- <div class="primary-form-group mt-2 pt-2">
-                                <div class="primary-form-group-wrap">
-                                  <label class="form-label">{{ __('Date') }} <span class="text-danger">*</span></label>
-                                  <input type="date" class="form-control filterTeachersDate" name="date">
-                                </div>
-                            </div> --}}
                             <div class="primary-form-group mt-2 pt-2">
                                 <div class="primary-form-group-wrap">
                                   <label class="form-label">{{ __('Select Day') }} <span class="text-danger">*</span></label>

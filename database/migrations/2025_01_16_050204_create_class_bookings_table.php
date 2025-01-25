@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->bigInteger('student_id')->nullable();
             $table->bigInteger('class_schedule_id')->nullable();
+            $table->bigInteger('class_slot_id')->nullable();
             $table->integer('status')->default(STATUS_ACTIVE);
             $table->timestamps();
         });

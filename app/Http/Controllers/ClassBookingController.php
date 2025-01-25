@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
+use App\Models\ClassSlot;
 use Illuminate\Http\Request;
 use App\Models\ClassBooking;
 use App\Models\ApplicantInfo;
@@ -18,13 +19,12 @@ class ClassBookingController extends Controller
 
     public function list(Request $request){
         if ($request->ajax()) {
-            $schedule = ClassBooking::with('classSchedule', 'student', 'classSchedule.teacher_list', 'classSchedule.course_list')->orderBy('id', 'desc');
-
+            $schedule = ClassBooking::with('classSchedule', 'student', 'classSchedule.teacher_list', 'classSchedule.course_list', 'slot')->orderBy('id', 'desc');
             return datatables($schedule)
                 ->addIndexColumn()
-                // ->addColumn('status', function ($schedule) {
-                //     return getStatusHtml($schedule->status);
-                // })
+                ->addColumn('status', function ($schedule) {
+                    return getStatusHtml($schedule->status);
+                })
                 ->addColumn('student_name', function ($schedule) {
                     return $schedule->student->name;
                 })
@@ -37,11 +37,8 @@ class ClassBookingController extends Controller
                 ->addColumn('day', function ($schedule) {
                     return $schedule->classSchedule->day;
                 })
-                ->addColumn('start_time', function ($schedule) {
-                    return $schedule->classSchedule->start_time ? \Carbon\Carbon::parse($schedule->classSchedule->start_time)->format('h:i A') : null;
-                })
-                ->addColumn('end_time', function ($schedule) {
-                    return $schedule->classSchedule->end_time ? \Carbon\Carbon::parse($schedule->classSchedule->end_time)->format('h:i A') : null;
+                ->addColumn('time', function ($state) {
+                    return ($state->slot->start_time ? \Carbon\Carbon::parse($state->slot->start_time)->format('h:i A') : null) . ' - ' . ($state->slot->end_time ? \Carbon\Carbon::parse($state->slot->end_time)->format('h:i A') : null);
                 })
                 ->addColumn('action', function ($data){
                     return '<div class="d-flex align-items-center g-10 justify-content-center">
@@ -50,7 +47,7 @@ class ClassBookingController extends Controller
                                 </button>
                         </div>';
                 })
-                ->rawColumns(['status', 'student_name', 'teacher_name', 'subject', 'day', 'start_time', 'end_time',  'action'])
+                ->rawColumns(['status', 'student_name', 'teacher_name', 'subject', 'day', 'time', 'action'])
                 ->make(true);
         }
 
@@ -111,28 +108,26 @@ class ClassBookingController extends Controller
             return response()->json(['error' => 'Invalid parameters'], 400);
         }
 
-        $data['classes_list'] = ClassSchedule::query()
-                    ->leftJoin('class_bookings', 'class_schedules.id', '=', 'class_bookings.class_schedule_id')
-                    ->select(
-                        'class_schedules.teacher_id',
-                        'class_schedules.course_id',
-                        'class_schedules.id',
-                        'class_schedules.day',
-                        'class_schedules.start_time',
-                        'class_schedules.end_time',
-                        DB::raw("CASE 
-                            WHEN class_schedules.booking_status = 2 THEN 'Not Available'
-                            WHEN class_schedules.booking_status = 1 AND class_bookings.class_schedule_id IS NULL THEN 'Available'
-                            ELSE 'Not Available'
-                        END AS availability_status")
-                    )
-                    ->when($teacherId, function ($query) use ($teacherId) {
-                        $query->where('class_schedules.teacher_id', $teacherId);
-                    })
-                    ->when($day, function ($query) use ($day) {
-                        $query->where('class_schedules.day', $day);
-                    })->get();
-
+        $data['classes_list'] = ClassSlot::query()
+            ->join('class_schedules', 'class_slots.class_schedule_id', '=', 'class_schedules.id')
+            ->leftJoin('class_bookings', 'class_slots.id', '=', 'class_bookings.class_slot_id')
+            ->select(
+                'class_slots.id',
+                'class_slots.start_time',
+                'class_slots.end_time',
+                'class_schedules.teacher_id',
+                'class_schedules.day',
+                'class_schedules.id as class_schedule_id',
+                DB::raw('IF(class_bookings.id IS NOT NULL, 1, 0) as is_booked')
+            )
+            ->when($teacherId, function ($query) use ($teacherId) {
+                $query->where('class_schedules.teacher_id', $teacherId);
+            })
+            ->when($day, function ($query) use ($day) {
+                $query->where('class_schedules.day', $day);
+            })
+            ->get();
+                    
         return view('admin.class-booking.class-slot', $data)->render();
     }
 
@@ -145,10 +140,9 @@ class ClassBookingController extends Controller
 
             $schedule->student_id = $request->student_id;
             $schedule->class_schedule_id = $request->class_schedule_id;
+            $schedule->class_slot_id = $request->class_slot_id;
             $schedule->status = isset($request->status) ? $request->status : STATUS_ACTIVE;
             $schedule->save();
-
-            ClassSchedule::where('id', $request->class_schedule_id)->update(['booking_status' => CLASS_BOOKED]);
 
             DB::commit();
             return $this->successResponse([], $msg);
@@ -164,14 +158,7 @@ class ClassBookingController extends Controller
     {
         DB::beginTransaction();
         try {
-            $class = ClassBooking::find($id);
-
-            if ($class) {
-                $classScheduleId = $class->class_schedule_id;
-                $class->delete();
-                ClassSchedule::where('id', $classScheduleId)->update(['booking_status' => CLASS_AVAILABLE]);
-            }
-
+             ClassBooking::find($id)->delete();
             DB::commit();
             return $this->successResponse([], $msg);
 

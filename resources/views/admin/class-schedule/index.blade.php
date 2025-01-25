@@ -117,7 +117,7 @@
                         <div class="days text-center"></div>
 
                         <div class="col-12">
-                            <div id="time-container">
+                            <div class="time-container">
                                 <div class="row align-items-end time-row">
                                     <div class="col-5">
                                         <div class="primary-form-group mt-2 pt-2">
@@ -138,7 +138,7 @@
                                         </div>
                                     </div>
                                     <div class="col-2">
-                                        <button type="button" id="btn-add-more" class="btn btn-icon-only bg-gradient-primary mb-0"> + </button>
+                                        <button type="button" class="btn btn-icon-only bg-gradient-primary mb-0 btn-add-more"> + </button>
                                     </div>
                                 </div>
                             </div>

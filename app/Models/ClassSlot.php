@@ -7,4 +7,12 @@ use Illuminate\Database\Eloquent\Model;
 class ClassSlot extends Model
 {
     //
+
+    public function schedule() {
+        return $this->belongsTo(ClassSchedule::class, 'class_schedule_id');
+    }
+    
+    public function bookings() {
+        return $this->hasMany(ClassBooking::class, 'class_slot_id');
+    }
 }

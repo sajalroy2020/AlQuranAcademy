@@ -23,8 +23,7 @@
             {"data": "teacher_name", "name": "users.teacher_name"},
             {"data": "subject", "name": "courses.subject"},
             {"data": "day", "name": "class_schedules.day"},
-            {"data": "start_time", "name": "class_schedules.start_time"},
-            {"data": "end_time", "name": "class_schedules.end_time"},
+            {"data": "time", "name": "time"},
             {"data": "status", "name": "status"},
             {"data": "action", searchable: false, responsivePriority:2},
         ],
@@ -79,6 +78,8 @@
         $(document).on('click', '.class-slot-button', function () {
             const button = $(this);
             const slotId = button.data('id');
+            const scheduleId = button.data('scheduleid');
+
                 $('.class-slot-button')
                 .removeClass('btn-warning')
                 .addClass('btn-outline-primary');
@@ -86,6 +87,7 @@
                 button.removeClass('btn-outline-primary').addClass('btn-warning');
     
             $('#class_slot_id').val(slotId);
+            $('#class_schedule_id').val(scheduleId);
         });
 
     });

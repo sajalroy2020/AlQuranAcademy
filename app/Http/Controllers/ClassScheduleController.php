@@ -26,9 +26,9 @@ class ClassScheduleController extends Controller
             
             return datatables($schedule)
                 ->addIndexColumn()
-                // ->addColumn('status', function ($schedule) {
-                //     return getStatusHtml($schedule->status);
-                // })
+                ->addColumn('status', function ($schedule) {
+                    return getStatusHtml($schedule->status);
+                })
                 ->addColumn('teacher_name', function ($state) {
                     return $state->teacher_list->name;
                 })
@@ -48,7 +48,8 @@ class ClassScheduleController extends Controller
                             $timeSlots[] = $formattedTime;
                         }
                     }
-                    return implode(', ', $timeSlots);
+                    $timeOutput = implode(', ', $timeSlots);
+                    return '<div style="width: 150px; overflow: hidden;" title="' . e($timeOutput) . '">' . e($timeOutput) . '</div>';
                 })
                 ->addColumn('action', function ($data){
                     return '<div class="d-flex align-items-center g-10 justify-content-center">
@@ -75,7 +76,8 @@ class ClassScheduleController extends Controller
     public function edit($id)
     {
         $data['pageTitle'] = __("Class Schedule Edit");
-        $data['schedule'] = ClassSchedule::find($id);
+        $data['schedule'] = ClassSchedule::with('class_slot')->find($id);
+        $data['classSlots'] = ClassSlot::where(['class_schedule_id' => $id, 'day' => $data['schedule']->day])->get();
         $data['teachers'] = User::where(['role' => USER_ROLE_TEACHER, 'status' => USER_STATUS_ACTIVE])->get();
         $data['courseList'] = Course::where('status', STATUS_ACTIVE)->get();
 
@@ -90,11 +92,14 @@ class ClassScheduleController extends Controller
             $days = is_string($request->days) ? explode(',', $request->days) : $request->days;
             $days = explode(',', $days[0]);
 
-            $schedule = new ClassSchedule();
             $checkSchedule = ClassSchedule::where('teacher_id', $request->teacher_id)->whereIn('day', $days)->get();
 
             // Loop through each day in the request
             foreach ($days as $day) {
+                if ($checkSchedule->firstWhere('day', $day)) {
+                    return $this->errorResponse([], __('Teacher is already scheduled for this day: ' . $day . '. Edit the schedule.'));
+                }
+                
                 $schedule = new ClassSchedule();
                 $schedule->teacher_id = $request->teacher_id;
                 $schedule->course_id = $request->course_id;
@@ -163,25 +168,52 @@ class ClassScheduleController extends Controller
 
             $checkSchedule = ClassSchedule::where('teacher_id', $request->teacher_id)->where('day', $request->day)->get();
 
-            if ($checkSchedule->isNotEmpty()) {
-                foreach ($checkSchedule as $dataItem) {
-                    $existingStartTime = \Carbon\Carbon::parse($dataItem->start_time)->format('h:i A');
-                    $existingEndTime = \Carbon\Carbon::parse($dataItem->end_time)->format('h:i A');
-                    $requestedStartTime = \Carbon\Carbon::parse($request->start_time)->format('h:i A');
-
-                    if ( $existingStartTime <= $requestedStartTime && $existingEndTime > $requestedStartTime ) {
-                        return $this->errorResponse([], __('Already booked for this time'));
-                    }
-                }
-            }
-
             $schedule->day = $request->day;
             $schedule->teacher_id = $request->teacher_id;
             $schedule->course_id = $request->course_id;
-            $schedule->start_time = $request->start_time;
-            $schedule->end_time = $request->end_time;
             $schedule->status = isset($request->status) ? $request->status : STATUS_ACTIVE;
             $schedule->save();
+
+            // Delete existing slots
+            ClassSlot::where('class_schedule_id', $schedule->id)->delete();
+
+            // Loop through each start time for the class
+            foreach ($request->start_time as $key => $startTime) {
+                $requestedStartTime = \Carbon\Carbon::parse($startTime);
+                $requestedEndTime = \Carbon\Carbon::parse($request->end_time[$key]);
+
+                // Iterate through each 1-hour slot between start and end time
+                while ($requestedStartTime < $requestedEndTime) {
+                    $nextSlotStart = $requestedStartTime->copy();
+                    $nextSlotEnd = $nextSlotStart->copy()->addHour();
+
+                    // Check for overlaps with existing schedules
+                    foreach ($checkSchedule as $dataItem) {
+                        $existingStartTime = \Carbon\Carbon::parse($dataItem->start_time);
+                        $existingEndTime = \Carbon\Carbon::parse($dataItem->end_time);
+
+                        // If the new slot overlaps with an existing slot, return error
+                        if (
+                            ($nextSlotStart >= $existingStartTime && $nextSlotStart < $existingEndTime) ||
+                            ($nextSlotEnd > $existingStartTime && $nextSlotEnd <= $existingEndTime)
+                        ) {
+                            return $this->errorResponse([], __('Already booked for this time: ' . $nextSlotStart->format('h:i A')));
+                        }
+                    }
+
+                    // Save this valid 1-hour slot
+                    $slot = new ClassSlot();
+                    $slot->class_schedule_id = $schedule->id;
+                    $slot->day = $request->day;
+                    $slot->start_time = $nextSlotStart;
+                    $slot->end_time = $nextSlotEnd;
+                    $slot->save();
+
+                    // Move to the next 1-hour slot
+                    $requestedStartTime = $nextSlotEnd;
+                }
+            }
+
             DB::commit();
             return $this->successResponse([], $msg);
 
@@ -195,6 +227,8 @@ class ClassScheduleController extends Controller
     public function delete($id){
         try {
             $schedule = ClassSchedule::find($id);
+            ClassSlot::where('class_schedule_id', $id)->delete();
+
             $schedule->delete();
             return $this->successResponse([], __(MSG_DELETED_SUCCESSFULLY));
         } catch (Exception $e) {
@@ -225,39 +259,48 @@ class ClassScheduleController extends Controller
         if(empty($day) || !is_array($day)) {
             return response()->json(['error' => 'Select day'], 400);
         }
-
         $data['classes_list'] = User::where('role', USER_ROLE_TEACHER)
                                 ->with(['Class_schedule' => function ($query) use ($day, $time) {
                                     $query->select(
-                                        'class_schedules.teacher_id',
-                                        'class_schedules.course_id',
-                                        'class_schedules.id',
-                                        'class_schedules.day',
-                                        'class_schedules.start_time',
-                                        'class_schedules.end_time',
-                                        DB::raw("CASE 
-                                            WHEN class_schedules.booking_status = 2 THEN 'Not Available'
-                                            WHEN class_schedules.booking_status = 1 AND class_bookings.class_schedule_id IS NULL THEN 'Available'
-                                            ELSE 'Not Available'
-                                        END AS availability_status")
-                                    )
-                                    ->leftJoin('class_bookings', 'class_schedules.id', '=', 'class_bookings.class_schedule_id')
-                                    ->where('class_schedules.status', STATUS_ACTIVE)
-                                    ->when(!$time && $day, function ($query) use ($day) {
-                                        $query->whereIn('class_schedules.day', $day);
-                                    })
-                                    ->when($time && $day, function ($query) use ($time, $day) {
-                                        $query->where('class_schedules.start_time', $time)
-                                        ->whereIn('class_schedules.day', $day);
-                                    });
+                                            'class_schedules.teacher_id',
+                                            'class_schedules.course_id',
+                                            'class_schedules.id',
+                                            'class_schedules.day',
+                                            'class_slots.start_time',
+                                            'class_slots.end_time',
+                                            DB::raw('IF(class_bookings.id IS NOT NULL, 1, 0) as is_booked')
+                                        )
+                                        ->leftJoin('class_slots', 'class_schedules.id', '=', 'class_slots.class_schedule_id') // Join class_slots table
+                                        ->leftJoin('class_bookings', 'class_slots.id', '=', 'class_bookings.class_slot_id') // Join class_bookings based on class_slot_id
+                                        ->where('class_schedules.status', STATUS_ACTIVE)
+                                        ->when(!$time && $day, function ($query) use ($day) {
+                                            $query->whereIn('class_slots.day', $day);
+                                        })
+                                        ->when($time && $day, function ($query) use ($time, $day) {
+                                            $query->where('class_slots.start_time', $time)
+                                            ->whereIn('class_slots.day', $day);
+                                        });
                                 }])
                                 ->select(
                                     'users.id',
-                                    'users.name'
+                                    'users.name',
                                 )
                                 ->get();
         
         return view('admin.class-schedule.class-slot', $data)->render();
+    }
+
+    public function checkDay(Request $request)
+    {
+        $day = $request->input('selected_day');
+        $teacher_id = $request->input('teacher_id');
+        $checkSchedule = ClassSchedule::where('teacher_id', $teacher_id)->where('day', $day)->exists();
+        if ($checkSchedule) {
+            return response()->json([
+                'status' => 'error',
+                'message' => __('Teacher already has a schedule on this day. Please edit the schedule.')
+            ], 400); // 400 Bad Request for validation errors
+        }
     }
 
 }

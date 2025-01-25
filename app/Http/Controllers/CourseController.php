@@ -20,9 +20,9 @@ class CourseController extends Controller
 
             return datatables($course)
                 ->addIndexColumn()
-                // ->addColumn('status', function ($course) {
-                //     return getStatusHtml($course->status);
-                // })
+                ->addColumn('status', function ($course) {
+                    return getStatusHtml($course->status);
+                })
                 ->addColumn('action', function ($data){
                     return '<div class="d-flex align-items-center g-10 justify-content-center">
                                 <button onclick="editCommonModal(\'' . route('admin.course.edit', $data->id) . '\'' . ', \'#editModal\')" class="border-0 bg-transparent" data-bs-toggle="modal" title="Edit">

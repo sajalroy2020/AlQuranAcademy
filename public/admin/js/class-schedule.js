@@ -54,11 +54,10 @@
         ],
       });
 
-
     //   add more time
     $(document).ready(function () {
         // Add More Button Click
-        $(document).on('click', '#btn-add-more', function () {
+        $(document).on('click', '.btn-add-more', function () {            
             // Create a new row with a delete button
             var newRow = `
                 <div class="row align-items-end time-row">
@@ -90,7 +89,7 @@
                 </div>`;
             
             // Append the new row to the container
-            $('#time-container').append(newRow);
+            $('.time-container').append(newRow);
         });
 
         // Delete Row Button Click
@@ -98,6 +97,30 @@
             // Remove the clicked row
             $(this).closest('.time-row').remove();
         });
+    });
+
+    // check already schedule 
+    $(document).ready(function () {
+        $(document).on('change', '.select-day', function() {
+            const selected_day = $(this).val();
+            const old_day = $('.select-day').data('day');
+            const teacherId = $('.select-day').data('teacherid');   
+            
+            $('.save-button').prop('disabled', false);
+            $('.error-message').html('');
+
+            if (selected_day != old_day) {
+                commonAjaxRequest('GET', $('#check-day-list-route').val(), dataResponseDay, dataResponseDay, {selected_day: selected_day, teacher_id: teacherId});
+            }
+        });
+        function dataResponseDay(response) {
+            const errorMessage = response.responseJSON?.message;
+            if (response.status == 400) {
+                alertCommonAjaxMessage('error', errorMessage);
+                $('.save-button').prop('disabled', true);
+                $('.error-message').html(errorMessage);
+            }
+        }
     });
 
 })(jQuery)
