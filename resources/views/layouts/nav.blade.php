@@ -30,11 +30,12 @@
     <div class="fullscreen-popup d-none">
         <div class="popup-content">
             <div class="text-center mt-3">
-                <span class="text-dark">Confirm You Are Active Now</span>
-                <a href="" class="btn btn-outline-primary btn-sm mt-2 ">Active</a>
+                <span class="text-dark">{{__('Confirm You Are Active Now')}}</span>
+                <button type="button" class="btn btn-outline-primary btn-sm mt-2 teacher-active-btn">{{__('Active')}}</button>
             </div>
         </div>
     </div>
+    <input type="hidden" id="teacher-active-check" value="{{ route('teacher.active-check') }}">
     <input type="hidden" id="teacher-active-route" value="{{ route('teacher.active-route') }}">
     @endif
 

@@ -33,7 +33,7 @@ class TeacherController extends Controller
         foreach ($class_schedule as $key => $value) {
             $check_active = ActiveCheck::where('teacher_id', $value->teacher_id)->first();
             
-            if ($check_active) {
+            if ($check_active->is_active == ACTIVE_) {
                 if ($check_active->notify_count == 0) {
                     $check_active->notify_count = 1;
                 } elseif ($check_active->notify_count == 1) {
@@ -217,7 +217,21 @@ class TeacherController extends Controller
         }
     }
 
+    // check teacher active status get and show information
     public function activeRoute(){
+        $userId = Auth::id();
+        $activeStatus = ActiveCheck::where('teacher_id', $userId)->update(['is_active' => ACTIVE]);
+
+        if ($activeStatus) {
+            return response()->json([
+                'status' => 'success',
+                'data' => $activeStatus,
+            ]);
+        }
+    }
+
+    // check teacher active status get and show information
+    public function activeCheck(){
         $userId = Auth::id();
         $activeStatus = ActiveCheck::where('teacher_id', $userId)->first();
 

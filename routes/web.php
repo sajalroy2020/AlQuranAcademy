@@ -94,6 +94,7 @@ Route::middleware('auth')->group(function () {
 
     // teachers all route list
     Route::group(['prefix' => 'teacher', 'as' => 'teacher.'], function () {
+        Route::get('active-check', [TeacherController::class, 'activeCheck'])->name('active-check');
         Route::get('active-route', [TeacherController::class, 'activeRoute'])->name('active-route');
 
         Route::get('today-class', [TeacherController::class, 'todayClass'])->name('today-class');
